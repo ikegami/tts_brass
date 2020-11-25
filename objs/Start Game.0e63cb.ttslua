@@ -1,0 +1,22 @@
+function onload()
+   -- Clickable area
+   self.createButton({
+      click_function = "on_click_start_game",
+      position       = { 0, 0.2, 0 },
+      height         = 700,
+      width          = 700,
+      color          = { 1, 1, 1, 0 },
+      label          = "",
+   })
+
+   -- Button label
+   self.createButton({
+      click_function = "on_click_start_game",
+      position       = { 0, 0.2, 0 },
+      height         = 1,
+      width          = 1,
+      color          = { 1, 1, 1, 1 },
+      label          = self.getName(),
+      font_size      = 160,
+   })
+end

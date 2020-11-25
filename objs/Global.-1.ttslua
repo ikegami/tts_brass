@@ -1,0 +1,20 @@
+-- ================================================================================
+-- Brass: Birmingham
+-- Quasi-stateless scripted version.
+
+-- ----------------------------------------
+-- Debugging commands.
+
+-- To start a game with insufficient players, use one of the following
+-- /execute start(2)
+-- /execute start(3)
+-- /execute start(4)
+
+-- To make simple to step through turns quickly when debuging, use the following:
+-- /execute start({ min_players = 2, skip_discard_check = true, cool_down = 0.1 })
+
+-- ================================================================================
+
+local development = true
+
+#include mods/BrassBirmingham/lib/Global

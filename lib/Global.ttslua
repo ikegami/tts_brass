@@ -1,0 +1,11 @@
+development = not not development
+
+local TableLock = require("kintastic/lib/TableLock")
+TableLock.on_violation = development and TableLock.announce_violation or TableLock.ignore_violation
+TableLock.lock(_G)
+TableLock.declare_atom_symbols()
+
+local Const = require("kintastic/lib/Const")
+Const.on_violation = development and Const.announce_violation or Const.ignore_violation
+
+TableLock.merge(_G, require("mods/BrassBirmingham/lib/wrapped/Global"))

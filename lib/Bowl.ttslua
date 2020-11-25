@@ -1,0 +1,116 @@
+-- Counting Bowl by MrStump, modified
+
+
+-- Constants
+local validCountItemList = {
+    [ "Gold"   ] = 15,
+    [ "Silver" ] =  5,
+    [ "Bronze" ] =  1,
+}
+
+
+-- Public attributes
+itemsInBowl = { }
+updateHook = nil
+
+
+-- Private attributes.
+local value
+
+
+function onLoad()
+   self.createButton({
+      label="", click_function="none", function_owner=self,
+      position={0,0.04,-2.5}, rotation={0,180,0}, height=0, width=0,
+      font_color={1,1,1}, font_size=500
+   })
+
+   Wait.time(countItems, 1, -1)
+end
+
+
+-- Gets the items in the bowl for countItems to count
+local function findItemsInSphere()
+   local pos   = self.getPosition()
+   local scale = self.getScale()
+
+   pos.y = pos.y + ( 1.25 * scale.y )
+
+   return Physics.cast({
+      origin       = pos,
+      direction    = { 0, 1, 0 },
+      type         = 2,
+      max_distance = 0,
+      size         = { 3.4 * scale.x, 3.4 * scale.y, 3.4 * scale.z },
+   })
+end
+
+
+-- Counts items in bowls.
+-- Sets itemsInBowl.
+-- Returns the count.
+-- Externally callable.
+-- Activated once per second.
+function countItems()
+   local foundItems = findItemsInSphere()
+
+   -- Isolate items of interest.
+   itemsInBowl = {}
+   for i, entry in ipairs(foundItems) do
+      if validCountItemList[entry.hit_object.getName()] then
+         table.insert(itemsInBowl, entry.hit_object)
+      end
+   end
+
+   -- Calculate value of items of interest.
+   local totalValue = 0
+   for i, obj in ipairs(itemsInBowl) do
+      local descValue = tonumber(obj.getDescription())
+      local stackMult = math.abs(obj.getQuantity())
+
+      -- Use value in description if available.
+      if descValue then
+         totalValue = totalValue + descValue * stackMult
+      else
+         totalValue = totalValue + validCountItemList[obj.getName()] * stackMult
+      end
+   end
+
+   if totalValue ~= value then
+      value = totalValue
+
+      -- Updates the number display.
+      self.editButton({ index=0, label=totalValue })
+
+      if updateHook then
+         local obj
+         if updateHook[1] == "Global" or updateHook[1] == -1 then
+            obj = Global
+         else
+            obj = getObjectFromGUID(updateHook[1])
+         end
+
+         obj.call(updateHook[2], {
+            guid = self.guid,
+            value = value,
+            data = updateHook[3],
+         })
+      end
+   end
+
+   return totalValue
+end
+
+
+-- Empties the bowl
+-- Externally callable.
+function empty()
+   local itemsInBowl = findItemsInSphere()
+   for _, entry in ipairs(itemsInBowl) do
+      if validCountItemList[entry.hit_object.getName()] then
+         entry.hit_object.destruct()
+      end
+   end
+
+   countItems()
+end
