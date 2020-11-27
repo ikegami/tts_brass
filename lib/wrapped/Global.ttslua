@@ -14,7 +14,8 @@
 -- /execute start({ min_players = 2, skip_discard_check = true, cool_down = 0 })
 
 -- TODO:
--- - [Possible bug] Is there a race condition in the disabling of the game-advancing button?
+-- - BUG: Clients don't see their hands.
+-- - BUG? Is there a race condition in the disabling of the game-advancing button?
 --
 -- - Add cool-down to control panel buttons (but delay them rather than dropping them)?
 -- - Prevent scoring if the board fails to validate?
