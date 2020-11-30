@@ -8,4 +8,8 @@ TableLock.declare_atom_symbols()
 local Const = require("kintastic/lib/Const")
 Const.on_violation = development and Const.announce_violation or Const.ignore_violation
 
+if development then
+   TableLock.merge(_G, require("kintastic/lib/Debug"))
+end
+
 TableLock.merge(_G, require("mods/BrassBirmingham/lib/wrapped/Global"))

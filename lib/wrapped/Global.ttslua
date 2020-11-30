@@ -79,12 +79,12 @@ local broadcast_info           = TtsMsgUtils.broadcast_info
 local broadcast_internal_error = TtsMsgUtils.broadcast_internal_error
 local pulse_obj                = TtsMsgUtils.pulse_obj
 local print_info               = TtsMsgUtils.print_info
+local get_abs_height           = TtsObject.get_abs_height
+local get_drop_pos             = TtsObject.get_drop_pos
 local set_position             = TtsObject.setPosition
 local set_position_smooth      = TtsObject.setPositionSmooth
 local set_transform_smooth     = TtsObject.setTransformSmooth
 local take_object              = TtsObject.takeObject
-local get_abs_height           = TtsObjUtils.get_abs_height
-local get_drop_pos             = TtsObjUtils.get_drop_pos
 local resolve_guids            = TtsObjUtils.resolve_guids
 local get_host                 = TtsPlayerUtils.get_host
 local get_admins               = TtsPlayerUtils.get_admins
@@ -1569,7 +1569,7 @@ function provide_links(link_type, link_name)
 
       local tile = player[link_type]
       local tile_data = tile.getData()
-      local pos = get_drop_pos(bag, tile)
+      local pos = get_drop_pos(tile, bag)
       local y_inc = get_abs_height(tile) * 2
       pos.y = pos.y + y_inc / 2
       for i = 1, 14 do
@@ -2245,7 +2245,7 @@ end
 -- Used for both the income tracker and the score tracker.
 function move_tracker(tracker, ofs, instant)   -- 0-based
    local zone = objects.track_zones[ofs+1]
-   local pos = get_drop_pos(zone, tracker)
+   local pos = get_drop_pos(tracker, zone)
    pos.y = pos.y - get_abs_height(tracker) / 2   -- Make sure it's at least partially in the zone.
    if instant then
       return set_position(tracker, pos)
