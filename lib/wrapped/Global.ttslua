@@ -200,7 +200,7 @@ local guids = rconst(rlock({
    game_table = "02b512",
    game_board_area = "b1585e",
    sound_effects = "44828f",
-   sound_effects_additional = "be6906",
+   sound_effects_additional = "be6906",  -- Not actually used at this time.
 
    start_button = "0e63cb",
 
@@ -607,17 +607,23 @@ end
 
 
 function mega_freeze()
-   local objs = {
+   for obj in ivalues({
       objects.game_board,
       objects.game_table,
       objects.game_board_area,
       objects.sound_effects,
       objects.sound_effects_additional,
-   }
-
-   for obj in ivalues(objs) do
+   }) do
       obj.interactable = false
       obj.tooltip      = false
+   end
+
+   -- Make the sound cubes incorporeal.
+   for obj in ivalues({
+      objects.sound_effects,
+      objects.sound_effects_additional,
+   }) do
+      obj.getComponent("Rigidbody").set("detectCollisions", false)
    end
 end
 
