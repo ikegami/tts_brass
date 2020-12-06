@@ -81,6 +81,8 @@ local pulse_obj                = TtsMsgUtils.pulse_obj
 local print_info               = TtsMsgUtils.print_info
 local get_abs_height           = TtsObject.get_abs_height
 local get_drop_pos             = TtsObject.get_drop_pos
+local move_atop                = TtsObject.moveAtop
+local move_atop_smooth         = TtsObject.moveAtopSmooth
 local set_position             = TtsObject.setPosition
 local set_position_smooth      = TtsObject.setPositionSmooth
 local set_transform_smooth     = TtsObject.setTransformSmooth
@@ -2245,13 +2247,13 @@ end
 -- Used for both the income tracker and the score tracker.
 function move_tracker(tracker, ofs, instant)   -- 0-based
    local zone = objects.track_zones[ofs+1]
-   local pos = get_drop_pos(tracker, zone)
-   pos.y = pos.y - get_abs_height(tracker) / 2   -- Make sure it's at least partially in the zone.
    if instant then
-      return set_position(tracker, pos)
+      return
+         move_atop(tracker, zone, { protrusion = 0.5, rotation = true })
+         :catch(||error("Error moving tracker"))
    else
       return
-         set_position_smooth(tracker, pos)
+         move_atop_smooth(tracker, zone, { protrusion = 0.5, rotation = true })
          :catch(||error("Error moving tracker"))
    end
 end
