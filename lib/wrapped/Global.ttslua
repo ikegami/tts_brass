@@ -849,7 +849,7 @@ end
 
 
 function Mod.on_click_start_game(obj, color_name, mouse_button)
-   if color_name == "Grey" or state.game_started then
+   if state.game_started then
       return
    end
 
