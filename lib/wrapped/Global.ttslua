@@ -32,6 +32,7 @@
 -- Modules.
 local ArrayUtils     = require("kintastic/lib/ArrayUtils")
 local Const          = require("kintastic/lib/Const")
+local Debounce       = require("kintastic/lib/Debounce")
 local DictUtils      = require("kintastic/lib/DictUtils")
 local Iters          = require("kintastic/lib/Iters")
 local Promise        = require("kintastic/lib/Promise")
@@ -53,6 +54,7 @@ local push                     = ArrayUtils.push
 local shuffle                  = ArrayUtils.shuffle
 local const                    = Const.const
 local rconst                   = Const.rconst
+local debounce                 = Debounce.debounce
 local select                   = DictUtils.select
 local get_keys                 = DictUtils.get_keys
 local merge                    = DictUtils.merge
@@ -98,6 +100,7 @@ local get_saved_state
 local load_saved_state
 local init_ui
 local update_ui
+local on_click_advance_game
 local min_max_window
 local cancel_announcement
 local announce_player_turn
@@ -718,6 +721,14 @@ function init_ui()
       font_color={ 0, 0, 0, 1 }, font_size=250
    })
 
+   debounce(
+      "on_click_advance_game",
+      function(name)
+         UI.setAttribute("advance_game_button", "onClick", name)
+      end,
+      on_click_advance_game
+   )
+
    -- Setup hook to update amount in control panel.
    for color_name, player in pairs(objects.players) do
       local bowl = player.wallet_bowl
@@ -849,11 +860,16 @@ function Mod.on_click_start_game(obj, color_name, mouse_button)
       return
    end
 
-   Mod.on_click_advance_game(Player[color_name], mouse_button, "advance_game_button")
+   _G.on_click_advance_game_1(Player[color_name], mouse_button, "advance_game_button")
 end
 
 
-function Mod.on_click_advance_game(player, mouse_button, button_id)
+function on_click_advance_game(button_used, player, mouse_button, button_id)
+   -- Disable the button until everything is done.
+   if advance_game_button_disabled then
+      return
+   end
+
    if player.color == "Grey" then
       return
    end
@@ -874,25 +890,12 @@ function Mod.on_click_advance_game(player, mouse_button, button_id)
       end
    end
 
-   -- Disable the button until everything is done and a cool-down
-   -- period (to avoid accidental clicks) is complete.
-   if advance_game_button_disabled then
-      return
-   end
+   -- The cool_down duration can change after the game has loaded.
+   button_used({ cool_down = state.opts.cool_down or 1.5 })
 
    advance_game_button_disabled = true
 
-   local promises = { }
-   table.insert(promises, advance_game())
-   table.insert(promises, Promise:timeout(state.opts.cool_down or 1.5))
-
-   Promise:all_settled(promises)
-   :next(
-      function(value)
-         table.remove(value)  -- Ignore the timeout.
-         Promise.all_settled_error_logger(value)
-      end
-   )
+   advance_game()
    :finally(
       function()
          advance_game_button_disabled = false
