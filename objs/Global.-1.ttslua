@@ -11,7 +11,7 @@
 -- /execute start(4)
 
 -- To make simple to step through turns quickly when debuging, use the following:
--- /execute start({ min_players = 2, skip_discard_check = true, cool_down = 0.1 })
+-- /execute start({ min_players = 2, skip_discard_check = true, cool_down = 0 })
 
 -- ================================================================================
 
