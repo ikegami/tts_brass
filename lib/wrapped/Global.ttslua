@@ -82,7 +82,6 @@ local get_drop_pos             = TtsObject.get_drop_pos
 local move_atop                = TtsObject.moveAtop
 local move_atop_smooth         = TtsObject.moveAtopSmooth
 local set_position             = TtsObject.setPosition
-local set_position_smooth      = TtsObject.setPositionSmooth
 local set_transform_smooth     = TtsObject.setTransformSmooth
 local take_object              = TtsObject.takeObject
 local resolve_guids            = TtsObjUtils.resolve_guids
@@ -165,7 +164,6 @@ local get_deck
 
 -- The module.
 local Mod = { }
-
 
 
 -- ================================================================================
@@ -1150,7 +1148,7 @@ function start_canal_era()
    -- Randomize player colors.
    local turn_order = shuffle(state.active_players)
    state.current_player = turn_order[1]
-   table.insert(promises, update_turn_order_tokens(turn_order))
+   table.insert(promises, update_turn_order_tokens(turn_order, true))
    table.insert(promises, distribute_merchant_tiles())
    table.insert(promises,
       deck_setup_canal_era()
@@ -1832,13 +1830,24 @@ function determine_new_turn_order()
 end
 
 
-function update_turn_order_tokens(turn_order)
+function update_turn_order_tokens(turn_order, randomize)
    local promises = { }
    for player_num, color_name in ipairs(turn_order) do
       local zone = objects.player_turns[player_num].turn_order_token_zone
       local token = objects.players[color_name].turn_order_token
+
+      local transform = {
+         position = zone.getPosition(),
+      }
+
+      if randomize and math.random(0, 1) == 1 then
+         local rotation = token.getRotation()
+         rotation.z = ( rotation.z + 180 ) % 360
+         transform.rotation = rotation
+      end
+
       table.insert(promises,
-         set_position_smooth(token, zone.getPosition())
+         set_transform_smooth(token, transform)
          :catch(||error("Error moving turn order token"))
       )
    end
