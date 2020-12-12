@@ -14,9 +14,6 @@
 -- /execute start({ min_players = 2, skip_discard_check = true, cool_down = 0 })
 
 -- TODO:
--- - BUG: Clients don't see their hands.
--- - BUG? Is there a race condition in the disabling of the game-advancing button?
---
 -- - Add cool-down to control panel buttons (but delay them rather than dropping them)?
 -- - Prevent scoring if the board fails to validate?
 -- - Modify `remove_money_from_player` so that money is moved from wallet?
@@ -88,6 +85,7 @@ local resolve_guids            = TtsObjUtils.resolve_guids
 local get_host                 = TtsPlayerUtils.get_host
 local get_admins               = TtsPlayerUtils.get_admins
 local get_seated_color_names   = TtsPlayerUtils.get_seated_color_names
+local get_seated_players       = TtsPlayerUtils.get_seated_players
 local decolor                  = TtsPlayerUtils.decolor
 local wait_condition           = TtsWait.condition
 
@@ -495,6 +493,8 @@ function Mod.onLoad(saved_state_json)
    init_global_data()
    mega_freeze()
    init_ui()
+
+   Wait.time(hand_fixer, 10, -1)
 
    for player in ivalues(Player.getPlayers()) do
       onPlayerConnect(player)
@@ -1018,6 +1018,21 @@ function announce_admin_turn()
    cancel_announcement()
    announcement_stopper = pulse_obj(objects.game_board_area, Color.Blue)
    objects.sound_effects.AssetBundle.playTriggerEffect(0)
+end
+
+
+-- ================================================================================
+-- Sometimes, player can't see the their ownd hands.
+-- This addresses the problem.
+
+function hand_fixer()
+   for i, player in ipairs(get_seated_players()) do
+      for i, card in ipairs(player.getHandObjects()) do
+         local pos = card.getPosition()
+         pos.z = pos.z + 0.01
+         card.setPosition(pos)
+      end
+   end
 end
 
 
