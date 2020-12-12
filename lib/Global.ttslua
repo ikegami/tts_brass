@@ -1,3 +1,7 @@
+if game ~= "Birmingham" then
+   error("Invalid value for \"game\".")
+end
+
 development = not not development
 
 local TableLock = require("kintastic/lib/TableLock")
@@ -12,4 +16,4 @@ if development then
    TableLock.merge(_G, require("kintastic/lib/Debug"))
 end
 
-TableLock.merge(_G, require("mods/BrassBirmingham/lib/wrapped/Global"))
+TableLock.merge(_G, require("mods/Brass/lib/wrapped/Global"))

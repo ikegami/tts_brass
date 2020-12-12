@@ -15,6 +15,7 @@
 
 -- ================================================================================
 
-local development = true
+game = "Birmingham"
+development = true
 
-#include mods/BrassBirmingham/lib/Global
+#include mods/Brass/lib/Global
