@@ -2,18 +2,18 @@ if game ~= "Birmingham" then
    error("Invalid value for \"game\".")
 end
 
-development = not not development
+debug = not not debug
+devel = not not devel
 
 local TableLock = require("kintastic/lib/TableLock")
-TableLock.on_violation = development and TableLock.announce_violation or TableLock.ignore_violation
+TableLock.on_violation = ( debug or devel ) and TableLock.announce_violation or TableLock.ignore_violation
 TableLock.lock(_G)
 TableLock.declare_atom_symbols()
 
 local Const = require("kintastic/lib/Const")
-Const.on_violation = development and Const.announce_violation or Const.ignore_violation
+Const.on_violation = ( debug or devel ) and Const.announce_violation or Const.ignore_violation
 
-if development then
-   TableLock.merge(_G, require("kintastic/lib/Debug"))
-end
+if debug then require("kintastic/lib/Debug").import_into_global()    end
+if devel then require("kintastic/lib/Devel").import_event_handlers() end
 
 TableLock.merge(_G, require("mods/Brass/lib/wrapped/Global"))

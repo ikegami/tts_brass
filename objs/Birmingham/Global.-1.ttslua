@@ -16,6 +16,7 @@
 -- ================================================================================
 
 game = "Birmingham"
-development = true
+debug = true
+devel = false
 
 #include mods/Brass/lib/Global
