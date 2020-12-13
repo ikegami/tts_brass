@@ -1,0 +1,218 @@
+-- ================================================================================
+-- Game state
+-- ================================================================================
+
+-- Modules.
+local ArrayUtils  = require("kintastic/lib/ArrayUtils")
+local Const       = require("kintastic/lib/Const")
+local DictUtils   = require("kintastic/lib/DictUtils")
+local TableLock   = require("kintastic/lib/TableLock")
+local TtsMsgUtils = require("kintastic/lib/TtsMsgUtils")
+
+-- Imports.
+local ivalues         = ArrayUtils.ivalues
+local make_set        = ArrayUtils.make_set
+local const           = Const.const
+local get_keys        = DictUtils.get_keys
+local merge           = DictUtils.merge
+local declare         = TableLock.declare
+local lock            = TableLock.lock
+local broadcast_error = TtsMsgUtils.broadcast_error
+
+-- The class.
+local State = { }
+
+State.mt = {
+   __index = State,
+}
+
+
+-- ================================================================================
+-- Private constants
+
+local state_vars = const(lock({
+   "current_phase",
+   "active_players",    -- Array of color names.
+   "current_round",
+   "current_player",    -- Color name.
+   "game_result",
+}))
+
+local is_state_var = const(make_set(state_vars))
+
+local option_names = const(lock({
+   "min_players",         -- Force the game to have at least this many players.
+   "skip_discard_check",  -- Don't enforce valid turns if true.
+   "cool_down",           -- Length of the cool-down on the game-advancing button.
+}))
+
+local is_option_name = const(make_set(option_names))
+
+local derived_vars = const(lock({
+   "game_started",
+   "is_active_player",  -- Keyed by color names.
+   "num_players",
+   "num_rounds",
+}))
+
+
+-- ================================================================================
+-- Public constructor
+
+function State.new(class, app)
+   local self = setmetatable({}, class.mt)
+
+   local state = lock({ })
+   declare(state, unpack(state_vars))
+
+   local derived = lock({ })
+   declare(derived, unpack(derived_vars))
+
+   local opts = lock({ })
+   declare(opts, unpack(option_names))
+
+   self.app            = app
+   self.state          = state
+   self.derived        = derived
+   self.opts           = opts
+   self.is_state_var   = is_state_var
+   self.is_option_name = is_option_name
+
+   state.current_phase = app.Phases.NOT_STARTED
+   state.game_started  = false
+
+   self:update_derived()
+
+   return self
+end
+
+
+-- ================================================================================
+-- Accessors
+
+for state_var in ivalues(state_vars) do
+   State["get_" .. state_var] = function(self)
+      return self.state[state_var]
+   end
+
+   State["set_" .. state_var] = function(self, val)
+      self.state[state_var] = val
+      self:update_derived()
+      return self.state[state_var]
+   end
+end
+
+
+for derived_var in ivalues(derived_vars) do
+   if derived_var ~= "is_active_player" then
+      State["get_" .. derived_var] = function(self)
+         return self.derived[derived_var]
+      end
+   end
+end
+
+function State:is_active_player(player_color)
+   return self.derived.is_active_player[player_color]
+end
+
+
+for option_name in ivalues(option_names) do
+   State["get_opt_" .. option_name] = function(self)
+      return self.opts[option_name]
+   end
+
+   State["set_opt_" .. option_name] = function(self, val)
+      self.opts[option_name] = val
+      return self.opts[option_name]
+   end
+end
+
+
+-- ================================================================================
+-- Public instance method State:get_saved_state
+
+function State:get_saved_state()
+   if self.derived.game_started then
+      return {
+         state = self.state,
+         opts  = self.opts,
+      }
+   else
+      return nil
+   end
+end
+
+
+-- ================================================================================
+-- Public instance method State:merge_saved_state
+
+function State:merge_saved_state(saved_state)
+   if not saved_state then
+      return
+   end
+
+   if saved_state.state then self:merge(      saved_state.state ) end
+   if saved_state.opts  then self:merge_opts( saved_state.opts  ) end
+end
+
+
+-- ================================================================================
+-- Public instance method State:merge
+
+function State:merge(dict)
+   local is_state_var = self.is_state_var
+
+   for k, v in pairs(dict) do
+      if is_state_var[k] then
+         self.state[k] = v
+      else
+         broadcast_error("\"" .. k .. "\" isn't a valid State variable.")
+      end
+   end
+
+   self:update_derived()
+end
+
+
+-- ================================================================================
+-- Public instance method State:merge_opts
+
+function State:merge_opts(dict)
+   local is_option_name = self.is_option_name
+
+   for k, v in pairs(dict) do
+      if is_option_name[k] then
+         self.opts[k] = v
+      else
+         broadcast_error("\"" .. k .. "\" isn't a valid State option.")
+      end
+   end
+end
+
+
+-- ================================================================================
+-- Public instance method State:update_derived
+
+function State:update_derived()
+   local state   = self.state
+   local derived = self.derived
+
+   derived.game_started = state.current_phase > self.app.Phases.NOT_STARTED
+
+   if derived.game_started then
+      derived.is_active_player = make_set(state.active_players)
+
+      derived.num_players = #state.active_players
+      derived.num_rounds  = 12 - derived.num_players
+   else
+      derived.is_active_player = nil
+
+      derived.num_players = nil
+      derived.num_rounds  = nil
+   end
+end
+
+
+-- ================================================================================
+
+return State

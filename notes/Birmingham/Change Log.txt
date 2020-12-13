@@ -9,6 +9,7 @@ Title: Change Log
 - A visual element was added to a player's turn notifications.
 - Addressed the issue that could cause the score trackers to topple over if multiple people had the same score at the end of scoring.
 - The script no longer relies on the name and description fields of objects. This allows the game to be internationalized. GM Notes are used for internal data.
+- Major internal changes to allow the code to be shared by both Brass: Lancashire and Brass: Birmingham.
 
 [2020-09-15 Kinithin]
 - Better handling of stacks and other misplaced items on the game board.

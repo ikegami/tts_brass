@@ -1,7 +1,3 @@
-if game ~= "Birmingham" then
-   error("Invalid value for \"game\".")
-end
-
 debug = not not debug
 devel = not not devel
 
@@ -16,4 +12,15 @@ Const.on_violation = ( debug or devel ) and Const.announce_violation or Const.ig
 if debug then require("kintastic/lib/Debug").import_into_global()    end
 if devel then require("kintastic/lib/Devel").import_event_handlers() end
 
-TableLock.merge(_G, require("mods/Brass/lib/wrapped/Global"))
+TableLock.declare_and_set(_G, "onLoad",
+   function()
+      local App
+      if game == "Birmingham" then
+         App = require("mods/Brass/lib/App/Birmingham")
+      else
+         error("Invalid value for \"game\".")
+      end
+
+      App:new():run()
+   end
+)
