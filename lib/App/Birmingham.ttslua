@@ -27,8 +27,10 @@ local BirminghamApp = {
 }
 
 -- Inherit functions from App.
+local SUPER = App
+
 setmetatable(BirminghamApp, {
-   __index = App,
+   __index = SUPER,
 })
 
 BirminghamApp.mt = {
@@ -38,6 +40,12 @@ BirminghamApp.mt = {
 
 -- ================================================================================
 -- Object initialization
+
+function BirminghamApp:init(saved_state_json)
+   SUPER.init(self, saved_state_json)
+   self.initial_funds = 17
+end
+
 
 function BirminghamApp:init_industry_tile_data()
    -- Don't lock since used as lookup.
@@ -76,7 +84,7 @@ end
 
 
 function BirminghamApp:init_objects()
-   App.init_objects(self)
+   SUPER.init_objects(self)
 
    local guids = {
       coal_bag = "e54c1a",
@@ -229,7 +237,7 @@ function BirminghamApp:init_resources()
       beer = { resource_name = "Beer", bag = objects.beer_bag, market_zones = nil                       },
    }))
 
-   App.init_resources(self)
+   SUPER.init_resources(self)
 end
 
 
@@ -243,7 +251,7 @@ function BirminghamApp:init_locations_and_links()
       [ "Warrington" ] = 2,
    })
 
-   App.init_locations_and_links(self)
+   SUPER.init_locations_and_links(self)
 end
 
 
@@ -253,28 +261,28 @@ end
 function BirminghamApp:create_buttons()
    local game_board = self.objects.game_board
 
-   App.create_buttons(self)
+   SUPER.create_buttons(self)
 
    game_board.createButton({
       label="+", click_function="on_click_add_coal_to_market",
-      position={ -7.745875, 13.7634, -1.006971 }, rotation={ 0, 180, 0 }, height=300, width=300,
-      font_color={ 0, 0, 0, 1 }, font_size=250
+      position={ -7.745875, 13.7634, -1.006971 }, rotation={ 0, 180, 0 },
+      height=300, width=300, font_color={ 0, 0, 0, 1 }, font_size=250,
    })
    game_board.createButton({
       label="-", click_function="on_click_sub_coal_from_market",
-      position={-7.745875, 13.7634, -1.566973}, rotation={ 0, 180, 0 }, height=300, width=300,
-      font_color={ 0, 0, 0, 1 }, font_size=250
+      position={-7.745875, 13.7634, -1.566973}, rotation={ 0, 180, 0 },
+      height=300, width=300, font_color={ 0, 0, 0, 1 }, font_size=250,
    })
 
    game_board.createButton({
       label="+", click_function="on_click_add_iron_to_market",
-      position={ -10.21544, 13.84522, -1.004541 }, rotation={ 0, 180, 0 }, height=300, width=300,
-      font_color={ 0, 0, 0, 1 }, font_size=250
+      position={ -10.21544, 13.84522, -1.004541 }, rotation={ 0, 180, 0 },
+      height=300, width=300, font_color={ 0, 0, 0, 1 }, font_size=250,
    })
    game_board.createButton({
       label="-", click_function="on_click_sub_iron_from_market",
-      position={ -10.21544, 13.84522, -1.564543 }, rotation={ 0, 180, 0 }, height=300, width=300,
-      font_color={ 0, 0, 0, 1 }, font_size=250
+      position={ -10.21544, 13.84522, -1.564543 }, rotation={ 0, 180, 0 },
+      height=300, width=300, font_color={ 0, 0, 0, 1 }, font_size=250,
    })
 end
 
@@ -284,7 +292,7 @@ end
 
 function BirminghamApp:setup_canal_era()
    local promises = { }
-   table.insert(promises, App.setup_canal_era(self))
+   table.insert(promises, SUPER.setup_canal_era(self))
    table.insert(promises, self:distribute_merchant_tiles())
 
    return
@@ -339,7 +347,7 @@ end
 
 function BirminghamApp:setup_rail_era()
    local promises = { }
-   table.insert(promises, App.setup_rail_era(self))
+   table.insert(promises, SUPER.setup_rail_era(self))
    table.insert(promises, self:restock_beer())
 
    return

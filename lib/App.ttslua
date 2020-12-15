@@ -42,8 +42,8 @@ local TtsObject      = require("kintastic/lib/Promise/TtsObject")
 local TtsObjUtils    = require("kintastic/lib/TtsObjUtils")
 local TtsPlayerUtils = require("kintastic/lib/TtsPlayerUtils")
 local TtsWait        = require("kintastic/lib/Promise/TtsWait")
+local TtsZoneUtils   = require("kintastic/lib/TtsZoneUtils")
 local State          = require("mods/Brass/lib/State")
-
 
 -- Imports.
 local filter                   = ArrayUtils.filter
@@ -80,6 +80,7 @@ local get_host                 = TtsPlayerUtils.get_host
 local get_seated_color_names   = TtsPlayerUtils.get_seated_color_names
 local get_seated_players       = TtsPlayerUtils.get_seated_players
 local decolor                  = TtsPlayerUtils.decolor
+local find_zone                = TtsZoneUtils.find_zone
 local wait_condition           = TtsWait.condition
 
 -- The class.
@@ -107,8 +108,10 @@ end
 -- Object initialization
 
 function App:init(saved_state_json)
+   -- self.initial_funds is populated by subclasses.
+
    self:init_state(saved_state_json)
-   self:init_industry_tile_data()
+   self:init_industry_tile_data()   -- self.industry_tile_data populated by subclass.
    self:init_objects()
    self:init_resources()
    self:init_locations_and_links()
@@ -384,12 +387,19 @@ end
 function App:create_buttons()
    local game_board = self.objects.game_board
 
+   local position = game_board.positionToLocal({ 0, 1.52, -14 })
+
+   local scale = game_board.getScale()
+   scale.x = 1/scale.x
+   scale.y = 1
+   scale.z = 1/scale.z
+
    -- Game status label.
    -- ButtonIndexes.GB_GAME_INFO
    game_board.createButton({
       label="", click_function="on_click_dummy",
-      position={ 0, 13.2, -14 }, rotation={ 0, 180, 0 }, height=0, width=0,
-      font_color={ 1, 1, 1 }, font_size=400
+      position=position, rotation={ 0, 180, 0 }, scale=scale,
+      height=0, width=0, font_color={ 1, 1, 1 }, font_size=400,
    })
 end
 
@@ -877,10 +887,6 @@ end
 
 
 function App:start_canal_era()
-   -- Randomize player colors.
-   local turn_order = shuffle(self.state:get_active_players())
-   self.state:set_current_player(turn_order[1])
-
    return
       self:setup_canal_era()
       :finally(||self:start_round())
@@ -1195,6 +1201,10 @@ end
 -- Setup
 
 function App:setup_canal_era()
+   -- Randomize player colors.
+   local turn_order = shuffle(self.state:get_active_players())
+   self.state:set_current_player(turn_order[1])
+
    local promises = { }
    table.insert(promises, self:update_turn_order_tokens(turn_order, true))
    table.insert(promises,
@@ -1290,7 +1300,7 @@ function App:provide_links(link_type, link_name)
       for i = 1, 14 do
          table.insert(promises,
             spawn_object_from_data({ data = tile_data, position = pos })
-            :next(|copy|wait_condition(||copy == nil, 3, "Timeout populating link bags"))
+            :next(|copy|wait_condition(||copy == nil, 3, "Timeout populating link bags."))
          )
          pos.y = pos.y + y_inc
       end
@@ -1407,7 +1417,7 @@ function App:refill_hands(color_names)
          table.insert(promises,
             wait_condition(
                ||self:get_hand_card_count(color_name) == ( 8 - short ),
-               3, ||reject("Timeout dealing cards")
+               3, ||reject("Timeout dealing cards.")
             )
          )
       end
@@ -1431,8 +1441,7 @@ function App:get_player_turn_index(color_name)
 
    for i = 1, self.state:get_num_players() do
       local zone = player_turns[i].turn_order_token_zone
-      local zone_objs = zone.getObjects()
-      for obj in ivalues(zone_objs) do
+      for obj in ivalues(zone.getObjects()) do
          local name, token_color_name = decolor(obj.getName())
          if name == "Player" then
             if token_color_name == color_name then
@@ -1455,8 +1464,7 @@ function App:get_next_color_name()
    local found_current = false
    for i = 1, self.state:get_num_players() do
       local zone = player_turns[i].turn_order_token_zone
-      local zone_objs = zone.getObjects()
-      for obj in ivalues(zone_objs) do
+      for obj in ivalues(zone.getObjects()) do
          local name, token_color_name = decolor(obj.getName())
          if name == "Player" then
             if token_color_name == current_player then
@@ -1480,9 +1488,8 @@ function App:determine_new_turn_order()
       local player_turn = self.objects.player_turns[i]
 
       local zone = player_turn.turn_order_token_zone
-      local zone_objs = zone.getObjects()
       local color_name = nil
-      for obj in ivalues(zone_objs) do
+      for obj in ivalues(zone.getObjects()) do
          local name, token_color_name = decolor(obj.getName())
          if name == "Player" then
             color_name = token_color_name
@@ -1644,9 +1651,8 @@ end
 
 function App:add_resource_to_market(color_name, resource)
    for i, zone in ipairs_desc(resource.market_zones) do
-      local zone_objs = zone.getObjects()
       local has_resource = false
-      for obj in ivalues(zone_objs) do
+      for obj in ivalues(zone.getObjects()) do
          if obj.getName() == resource.resource_name then
             has_resource = true
             break
@@ -1665,9 +1671,8 @@ end
 
 function App:sub_resource_from_market(color_name, resource)
    for i, zone in ipairs(resource.market_zones) do
-      local zone_objs = zone.getObjects()
       local had_resource = false
-      for obj in ivalues(zone_objs) do
+      for obj in ivalues(zone.getObjects()) do
          if obj.getName() == resource.resource_name then
             obj.destruct()
             local value = math.floor((i+1) / 2)
@@ -2045,7 +2050,7 @@ function App:give_initial_funds()
    local promises = { }
    for color_name in ivalues(self.state:get_active_players()) do
       local wallet_bowl = self.objects.players[color_name].wallet_bowl
-      table.insert(promises, self:add_money_to_bowl(wallet_bowl, 17))
+      table.insert(promises, self:add_money_to_bowl(wallet_bowl, self.initial_funds))
    end
 
    return
