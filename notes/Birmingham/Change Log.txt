@@ -7,7 +7,7 @@ Title: Change Log
 - The scores are now announced in (reverse) order of placement. This uses the tie-breakers if required.
 - A sound effect is now played any time the game becomes ready to be advanced, not just when it becomes someone's turn.
 - A visual element was added to a player's turn notifications.
-- Addressed the issue that could cause the score trackers to topple over if multiple people had the same score at the end of scoring.
+- Addressed the issue that could cause the score markers to topple over if multiple people had the same score at the end of scoring.
 - The script no longer relies on the name and description fields of objects. This allows the game to be internationalized. GM Notes are used for internal data.
 - Major internal changes to allow the code to be shared by both Brass: Lancashire and Brass: Birmingham.
 
@@ -34,7 +34,7 @@ Title: Change Log
 - Fixed the maximum number of rounds displayed.
 - Allows a discard pile to have three cards (to support the Scout action).
 - Removed the need to tell the game the number of players that will be playing.
-- Trackers and tokens for unused player colors are now removed automatically.
+- Markers and tokens for unused player colors are now removed automatically.
 - The orange player's tray has been moved so that it's not obscured by the chat window when viewing the whole board.
 - The orangish-red color is now played by an orange player since red is used by error messages. (Same reason white is played by a teal player.)
 - The coal and iron bags can now be moved or copied without messing anything up.

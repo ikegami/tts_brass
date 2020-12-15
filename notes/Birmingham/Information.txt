@@ -16,7 +16,7 @@ The script is largely stateless. This means you can change/correct just about ev
 - Money spent
 - Links and industries
 - Cards
-- Income and score trackers
+- Income and score markers
 - Coal and iron markets
 - Merchants and their beer
 

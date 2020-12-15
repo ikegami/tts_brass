@@ -154,10 +154,10 @@ function App:init_objects()
 
       -- Discard areas ordered left to right.
       players = {
-         [ "Orange" ] = { mat = "535035", turn_order_token = "749e60", income_tracker = "42742a", score_tracker = "f890c5", discard_areas = { "2e028e", "6c9ecf" }, wallet_bowl = "f4d107", link_bag = "3fd996", canal_link = "d319a0", railway_link = "5cd3b7" },
-         [ "Purple" ] = { mat = "9f5d4d", turn_order_token = "e19c38", income_tracker = "479c68", score_tracker = "fa02ec", discard_areas = { "59dfbc", "03e3a4" }, wallet_bowl = "6e1823", link_bag = "0354b2", canal_link = "3026c3", railway_link = "2b73b5" },
-         [ "Teal"   ] = { mat = "c924e1", turn_order_token = "1d7a31", income_tracker = "b1dbec", score_tracker = "08f261", discard_areas = { "24b3dc", "a894b0" }, wallet_bowl = "ab3868", link_bag = "02fb12", canal_link = "b8d1b6", railway_link = "ea9667" },
-         [ "Yellow" ] = { mat = "918d17", turn_order_token = "dd63fc", income_tracker = "753c24", score_tracker = "2d162b", discard_areas = { "282c08", "df91cf" }, wallet_bowl = "820239", link_bag = "219821", canal_link = "e808b2", railway_link = "80c4b1" },
+         [ "Orange" ] = { mat = "535035", turn_order_token = "749e60", income_marker = "42742a", score_marker = "f890c5", discard_areas = { "2e028e", "6c9ecf" }, wallet_bowl = "f4d107", link_bag = "3fd996", canal_link = "d319a0", railway_link = "5cd3b7" },
+         [ "Purple" ] = { mat = "9f5d4d", turn_order_token = "e19c38", income_marker = "479c68", score_marker = "fa02ec", discard_areas = { "59dfbc", "03e3a4" }, wallet_bowl = "6e1823", link_bag = "0354b2", canal_link = "3026c3", railway_link = "2b73b5" },
+         [ "Teal"   ] = { mat = "c924e1", turn_order_token = "1d7a31", income_marker = "b1dbec", score_marker = "08f261", discard_areas = { "24b3dc", "a894b0" }, wallet_bowl = "ab3868", link_bag = "02fb12", canal_link = "b8d1b6", railway_link = "ea9667" },
+         [ "Yellow" ] = { mat = "918d17", turn_order_token = "dd63fc", income_marker = "753c24", score_marker = "2d162b", discard_areas = { "282c08", "df91cf" }, wallet_bowl = "820239", link_bag = "219821", canal_link = "e808b2", railway_link = "80c4b1" },
       },
 
       player_turns = {
@@ -861,8 +861,8 @@ function App:start_game()
    for color_name, player in pairs(objects.players) do
       if not state:is_active_player(color_name) then
          player.turn_order_token.destruct()
-         player.income_tracker.destruct()
-         player.score_tracker.destruct()
+         player.income_marker.destruct()
+         player.score_marker.destruct()
          player.link_bag.destruct()
          player.canal_link.destruct()
          player.railway_link.destruct()
@@ -963,16 +963,16 @@ function App:end_era()
    local score_info_recs = { }
    for color_name in ivalues(self.state:get_active_players()) do
       local player = self.objects.players[color_name]
-      local score_tracker = player.score_tracker
-      local income_tracker = player.income_tracker
+      local score_marker = player.score_marker
+      local income_marker = player.income_marker
       local wallet_bowl = player.wallet_bowl
 
       local link_points     = link_points_by_color_name[color_name]
       local industry_points = industry_points_by_color_name[color_name]
       local points          = link_points + industry_points
-      local total           = self:get_track_position_offset(score_tracker) + points
+      local total           = self:get_track_position_offset(score_marker) + points
 
-      local income_of = self:get_track_position_offset(income_tracker)
+      local income_of = self:get_track_position_offset(income_marker)
       local income = self:income_by_track_offset(income_of)
 
       local money = self:update_bowl(wallet_bowl)
@@ -1042,7 +1042,7 @@ function App:end_era()
    for score_info_rec in ivalues_desc(score_info_recs) do
       local color_name = score_info_rec.color_name
       local player = self.objects.players[color_name]
-      local score_tracker = player.score_tracker
+      local score_marker = player.score_marker
 
       -- We want the moves to happen seqentially because moving
       -- more than one to the same location can knock them over.
@@ -1058,7 +1058,7 @@ function App:end_era()
                message_color
             )
 
-            return self:move_tracker(score_tracker, score_info_rec.total)
+            return self:move_marker(score_marker, score_info_rec.total)
          end
       )
 
@@ -1924,31 +1924,25 @@ end
 -- ================================================================================
 -- Income.
 
--- Used for both the income tracker and the score tracker.
-function App:get_track_position_offset(tracker)   -- 0-based
-   for i, zone in ipairs(self.objects.track_zones) do
-      for obj in ivalues(zone.getObjects()) do
-         if obj == tracker then
-            return i-1
-         end
-      end
-   end
-
-   return nil
+-- Used for both the income marker and the score marker.
+function App:get_track_position_offset(marker)   -- 0-based
+   local i = find_zone(self.objects.track_zones, marker)
+   return i and i-1 or nil
 end
 
 
--- Used for both the income tracker and the score tracker.
-function App:move_tracker(tracker, ofs, instant)   -- 0-based
-   local zone = self.objects.track_zones[ofs+1]
+-- Used for both the income marker and the score marker.
+function App:move_marker(marker, ofs, instant)   -- 0-based
+   local zones = self.objects.track_zones
+   local zone = zones[ ( ofs % #zones ) + 1 ]
    if instant then
       return
-         move_atop(tracker, zone, { protrusion = 0.5, rotation = true })
-         :catch(||error("Error moving tracker"))
+         move_atop(marker, zone, { protrusion = 0.5, rotation = true })
+         :catch(||error("Error moving marker"))
    else
       return
-         move_atop_smooth(tracker, zone, { protrusion = 0.5, rotation = true })
-         :catch(||error("Error moving tracker"))
+         move_atop_smooth(marker, zone, { protrusion = 0.5, rotation = true })
+         :catch(||error("Error moving marker"))
    end
 end
 
@@ -1975,17 +1969,10 @@ end
 
 function App:income_inc(color_name)
    local player = self.objects.players[color_name]
-   local tracker = player.income_tracker
-   local old_ofs = self:get_track_position_offset(tracker)
-
-   local new_ofs
-   if old_ofs == 99 then
-      new_ofs = 0
-   else
-      new_ofs = old_ofs + 1
-   end
-
-   self:move_tracker(tracker, new_ofs, true)
+   local marker = player.income_marker
+   local old_ofs = self:get_track_position_offset(marker)
+   local new_ofs = old_ofs + 1
+   self:move_marker(marker, new_ofs, true)
    :finally(
       function()
          printToAll(color_name .. " increased their income by one position to " .. new_ofs .. " (from " .. old_ofs .. ").", color_name)
@@ -1997,8 +1984,8 @@ end
 
 function App:income_dec(color_name)
    local player = self.objects.players[color_name]
-   local tracker = player.income_tracker
-   local old_ofs = self:get_track_position_offset(tracker)
+   local marker = player.income_marker
+   local old_ofs = self:get_track_position_offset(marker)
    local new_ofs = old_ofs - 1
 
    if new_ofs < 0 then
@@ -2006,7 +1993,7 @@ function App:income_dec(color_name)
       return
    end
 
-   self:move_tracker(tracker, new_ofs, true)
+   self:move_marker(marker, new_ofs, true)
    :finally(
       function()
          printToAll(color_name .. " reduced their income to position " .. new_ofs .. " (from " .. old_ofs .. ").", color_name)
@@ -2018,10 +2005,10 @@ end
 
 function App:take_loan(color_name)
    local player = self.objects.players[color_name]
-   local tracker = player.income_tracker
+   local marker = player.income_marker
    local wallet_bowl = player.wallet_bowl
 
-   local old_ofs = self:get_track_position_offset(tracker)
+   local old_ofs = self:get_track_position_offset(marker)
    local income = self:income_by_track_offset(old_ofs)
 
    income = income - 3
@@ -2032,7 +2019,7 @@ function App:take_loan(color_name)
 
    local promises = { }
    local new_ofs = self:track_offset_by_income(income)
-   table.insert(promises, self:move_tracker(tracker, new_ofs, true))
+   table.insert(promises, self:move_marker(marker, new_ofs, true))
    table.insert(promises, self:add_money_to_bowl(wallet_bowl, 30))
 
    Promise:all_settled(promises)
@@ -2068,7 +2055,7 @@ function App:give_income()
    for i, zone in ipairs(self.objects.track_zones) do
       for obj in ivalues(zone.getObjects()) do
          local name, color_name = decolor(obj.getName())
-         if name == "Income Tracker" then
+         if name == "Income Marker" then
             incomes[color_name] = self:income_by_track_offset(i-1)
          end
       end
@@ -2083,7 +2070,7 @@ function App:give_income()
             local income = incomes[color_name]
             local remaining = income
             if income == nil then
-               reject("No income tracker found for " .. color_name)
+               reject("No income marker found for " .. color_name)
             elseif income < 0 then
                resolve(
                   self:remove_money_from_player(color_name, -income, false)
