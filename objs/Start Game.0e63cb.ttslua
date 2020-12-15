@@ -1,4 +1,4 @@
-function onload()
+function onLoad()
    -- Clickable area
    self.createButton({
       click_function = "on_click_start_game",
