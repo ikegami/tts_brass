@@ -108,7 +108,7 @@ end
 -- Object initialization
 
 function App:init(saved_state_json)
-   -- self.initial_funds is populated by subclasses.
+   -- self.initial_funds and self.loan_amount are populated by subclasses.
 
    self:init_state(saved_state_json)
    self:init_industry_tile_data()   -- self.industry_tile_data populated by subclass.
@@ -905,6 +905,12 @@ end
 
 
 function App:start_rail_era()
+   local deck = self:get_deck()
+   if deck then
+      broadcast_error("Can’t proceed while there are cards in the deck area.")
+      return Promise:resolve()
+   end
+
    self.state:merge({
       current_phase = App.Phases.RAIL_ERA_ROUND,
       current_round = 1,
@@ -1317,9 +1323,10 @@ end
 -- Grab a fresh deck of cards.
 -- Destroy the bags of deck of cards afterwards.
 function App:setup_deck_rail_era()
-   local card_deck_bag = self.objects.card_deck_bags[ self.state:get_num_players() - 1 ]
-   local play_deck_zone = self.objects.play_deck_zone
-
+   local objects = self.objects
+   local num_players = self.state:get_num_players()
+   local card_deck_bag = objects.card_deck_bags[ num_players - 1 ]
+   local play_deck_zone = objects.play_deck_zone
    return
       take_object(card_deck_bag, {
          position = play_deck_zone.getPosition(),
@@ -2011,7 +2018,10 @@ function App:take_loan(color_name)
    local old_ofs = self:get_track_position_offset(marker)
    local income = self:income_by_track_offset(old_ofs)
 
-   income = income - 3
+   local loan_amount = self.loan_amount
+   local loan_steps = loan_amount / 10
+
+   income = income - loan_steps
    if income < -10 then
       broadcast_error(color_name .. ", you can’t take out a loan as you would exceed 10 interest!", color_name)
       return
@@ -2020,7 +2030,7 @@ function App:take_loan(color_name)
    local promises = { }
    local new_ofs = self:track_offset_by_income(income)
    table.insert(promises, self:move_marker(marker, new_ofs, true))
-   table.insert(promises, self:add_money_to_bowl(wallet_bowl, 30))
+   table.insert(promises, self:add_money_to_bowl(wallet_bowl, loan_amount))
 
    Promise:all_settled(promises)
    :next(Promise.all_settled_error_logger)
