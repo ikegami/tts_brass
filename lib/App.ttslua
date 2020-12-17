@@ -132,6 +132,7 @@ end
 
 function App:init_objects()
    local state = self.state
+   local num_players = state:get_num_players()
 
    local guids = {
       game_board = "4ee1f2",
@@ -191,7 +192,7 @@ function App:init_objects()
       guids.start_button = nil
 
       guids.card_deck_bags = pick(guids.card_deck_bags,
-         |i, guid|i == state:get_num_players() - 1 and not rail_era_started
+         |i, guid|i == num_players - 1 and not rail_era_started
       )
 
       guids.players = pick(guids.players,
@@ -199,7 +200,7 @@ function App:init_objects()
       )
 
       guids.player_turns = filter(guids.player_turns,
-         |i, player_turn|i <= state:get_num_players()
+         |i, player_turn|i <= num_players
       )
 
       for color_name in ivalues(state:get_active_players()) do
@@ -974,7 +975,7 @@ function App:end_era()
       for loc_square in values(location) do
          local found = false
          for obj in ivalues(loc_square.getObjects()) do
-            if obj.name == "Card" then
+            if obj.name == "Card" or obj.name == "Custom_Tile" then
                local name, color_name = decolor(obj.getGMNotes())
                local data = self.industry_tile_data[name]
                if data then
@@ -1391,7 +1392,7 @@ function App:remove_level1_industries()
       for loc_square in values(location) do
          local found = false
          for obj in ivalues(loc_square.getObjects()) do
-            if obj.name == "Card" then
+            if obj.name == "Card" or obj.name == "Custom_Tile" then
                local name = decolor(obj.getGMNotes())
                local data = self.industry_tile_data[name]
                if data and data.level == 1 then
@@ -2141,7 +2142,8 @@ function App:validate_location(loc_name)
    for loc_square_name, loc_square in pairs(location) do
       local found = false
       for obj in ivalues(loc_square.getObjects()) do
-         if obj.name == "Card" then
+         local obj_is_tile = false
+         if obj.name == "Card" or obj.name == "Custom_Tile" then
             local name = decolor(obj.getGMNotes())
             local tile_data = self.industry_tile_data[name]
             if tile_data then
@@ -2150,16 +2152,22 @@ function App:validate_location(loc_name)
                   return false
                end
 
-               found = true
-               tiles[obj] = true  -- Check for tiles that span more than one location.
+               found = true        -- Check for multiple tiles at the same location.
+               tiles[obj] = true   -- Check for tiles that span more than one location.
+
+               obj_is_tile = true
             end
-         elseif self.resource_id_by_name[ obj.getGMNotes() ] then
-            -- Ignore Coal, Iron and Beer.
-         elseif obj == self.objects.game_board or obj == self.objects.game_table then
-            -- Ignore the game board and the game table.
-         else
-            broadcast_error("Unexpected object found at " .. loc_square_name .. "!")
-            return false
+         end
+
+         if not obj_is_tile then
+            if self.resource_id_by_name[ obj.getGMNotes() ] then
+               -- Ignore Coal, Iron and Beer.
+            elseif obj == self.objects.game_board or obj == self.objects.game_table then
+               -- Ignore the game board and the game table.
+            else
+               broadcast_error("Unexpected object found at " .. loc_square_name .. "!")
+               return false
+            end
          end
       end
    end
@@ -2193,7 +2201,7 @@ function App:get_value_of_location_for_link(loc_name)
    local value = 0
    for loc_square in values(location) do
       for obj in ivalues(loc_square.getObjects()) do
-         if obj.name == "Card" then
+         if obj.name == "Card" or obj.name == "Custom_Tile" then
             local name = decolor(obj.getGMNotes())
             local tile_data = self.industry_tile_data[name]
             if tile_data and obj.is_face_down then

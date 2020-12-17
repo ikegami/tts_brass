@@ -89,6 +89,9 @@ end
 
 
 function LancashireApp:init_objects()
+   local state = self.state
+   local num_players = state:get_num_players()
+
    SUPER.init_objects(self)
 
    local guids = {
@@ -201,9 +204,11 @@ function LancashireApp:init_objects()
       },
    }
 
-   if self.state:get_game_started() then
+   if state:get_game_started() then
+      local rail_era_started = state:get_current_phase() >= App.Phases.RAIL_ERA_ROUND
+
       guids.distant_market_bags = pick(guids.distant_market_bags,
-         |i, guid|i == state:get_num_players() - 1 and state:get_current_phase() < SUPER.Phases.RAIL_ERA_ROUND
+         |i, guid|i == num_players - 1 and not rail_era_started
       )
    end
 
