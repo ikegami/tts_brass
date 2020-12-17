@@ -81,7 +81,8 @@ local get_seated_color_names   = TtsPlayerUtils.get_seated_color_names
 local get_seated_players       = TtsPlayerUtils.get_seated_players
 local decolor                  = TtsPlayerUtils.decolor
 local find_zone                = TtsZoneUtils.find_zone
-local wait_condition           = TtsWait.condition
+local wait_condition           = TtsWait.cond
+local wait_frames              = TtsWait.frames
 
 -- The class.
 local App = {
@@ -1263,6 +1264,8 @@ function App:setup_deck_canal_era()
                   return deck
                end
             )
+            :next(|deck|wait_frames(1, deck))
+            :next(|deck|wait_condition(||deck.resting, deck, 3, "Timeout setting up deck."))
       else
          card_deck_bag.destruct()
       end
@@ -1311,7 +1314,7 @@ function App:provide_links(link_type, link_name)
       for i = 1, 14 do
          table.insert(promises,
             spawn_object_from_data({ data = tile_data, position = pos })
-            :next(|copy|wait_condition(||copy == nil, 3, "Timeout populating link bags."))
+            :next(|copy|wait_condition(||copy == nil, copy, 3, "Timeout populating link bags."))
          )
          pos.y = pos.y + y_inc
       end
@@ -1344,6 +1347,8 @@ function App:setup_deck_rail_era()
             return deck
          end
       )
+      :next(|deck|wait_frames(1, deck))
+      :next(|deck|wait_condition(||deck.resting, deck, 3, "Timeout setting up deck."))
 end
 
 
@@ -1429,7 +1434,7 @@ function App:refill_hands(color_names)
          table.insert(promises,
             wait_condition(
                ||self:get_hand_card_count(color_name) == ( 8 - short ),
-               3, ||reject("Timeout dealing cards.")
+               nil, 3, ||reject("Timeout dealing cards.")
             )
          )
       end
