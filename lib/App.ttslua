@@ -30,7 +30,7 @@
 -- Modules.
 local ArrayUtils     = require("kintastic/lib/ArrayUtils")
 local Const          = require("kintastic/lib/Const")
-local Debounce       = require("kintastic/lib/Debounce")
+local Debouncer      = require("kintastic/lib/Debouncer")
 local DictUtils      = require("kintastic/lib/DictUtils")
 local Iters          = require("kintastic/lib/Iters")
 local Promise        = require("kintastic/lib/Promise")
@@ -52,7 +52,7 @@ local make_set                 = ArrayUtils.make_set
 local shuffle                  = ArrayUtils.shuffle
 local const                    = Const.const
 local rconst                   = Const.rconst
-local debounce                 = Debounce.debounce
+local debounce                 = Debouncer.debounce
 local pick                     = DictUtils.pick
 local get_keys                 = DictUtils.get_keys
 local ipairs_desc              = Iters.ipairs_desc
@@ -362,12 +362,13 @@ function App:init_ui()
 
    self:create_buttons()
 
-   debounce(
+   self.advance_game_button = debounce(
       "on_click_advance_game",
       function(name)
          UI.setAttribute("advance_game_button", "onClick", name)
       end,
-      |...|self:on_click_advance_game(...)
+      |...|self:on_click_advance_game(...),
+      { cool_down = 1.5 }
    )
 
    -- Setup hook to update amount in control panel.
@@ -566,15 +567,19 @@ end)
 
 
 App:export("start", function(self, opts)
-   if self.state:get_game_started() then return end
+   local state = self.state
+   if state:get_game_started() then return end
 
    if opts then
       if type(opts) == "number" then
-         self.state:set_opt_min_players(opts)
+         state:set_opt_min_players(opts)
       else
-         self.state:merge_opts(opts)
+         state:merge_opts(opts)
       end
    end
+
+   local debouncer = self.advance_game_button
+   debouncer:set_opt_cool_down( state:get_opt_cool_down() or 1.5 )
 
    on_click_start_game(self.objects.start_button, get_host().color, "-1")
 end)
@@ -585,11 +590,12 @@ App:export("on_click_start_game", function(self, obj, color_name, mouse_button)
       return
    end
 
-   on_click_advance_game_1(Player[color_name], mouse_button, "advance_game_button")
+   local debouncer = self.advance_game_button
+   debouncer:call(Player[color_name], mouse_button, "advance_game_button")
 end)
 
 
-function App:on_click_advance_game(button_used, player, mouse_button, button_id)
+function App:on_click_advance_game(debouncer, button_used, player, mouse_button, button_id)
    -- Disable the button until everything is done.
    if self.advance_game_button_disabled then
       return
@@ -616,8 +622,7 @@ function App:on_click_advance_game(button_used, player, mouse_button, button_id)
       end
    end
 
-   -- The cool_down duration can change after the game has loaded.
-   button_used({ cool_down = self.state:get_opt_cool_down() or 1.5 })
+   button_used()
 
    self.advance_game_button_disabled = true
 
