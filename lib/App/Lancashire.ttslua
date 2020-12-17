@@ -314,6 +314,29 @@ function LancashireApp:do_start_round()
 end
 
 
+function LancashireApp:end_turn()
+   local state = self.state
+
+   local current_player = state:get_current_player()
+
+   -- Check if the player actually completed their turn.
+   if not state:get_opt_skip_discard_check() then
+      if not self:are_discards_full(current_player) then
+         local player = Player[current_player]
+         if player.seated then
+            broadcast_error(current_player .. ", you can’t end your turn because you don’t have exactly 1 card in each of your discard piles!", current_player)
+         else
+            broadcast_error("The round can’t be ended because " .. current_player .. " doesn’t have exactly 1 card in each of their discard piles!")
+         end
+
+         return Promise:resolve()
+      end
+   end
+
+   return SUPER.end_turn(self)
+end
+
+
 -- ================================================================================
 -- Setup
 
@@ -465,6 +488,21 @@ function LancashireApp:setup_deck_rail_era()
                )
          end
       )
+end
+
+
+-- ================================================================================
+-- Discard pile manipulations
+
+function LancashireApp:are_discards_full(color_name)
+   for i = 1, 2 do
+      local count = self:get_discarded_count(color_name, i)
+      if count ~= 1 then
+         return false
+      end
+   end
+
+   return true
 end
 
 

@@ -8,19 +8,21 @@ local Iters       = require("kintastic/lib/Iters")
 local Promise     = require("kintastic/lib/Promise")
 local StrUtils    = require("kintastic/lib/StrUtils")
 local TableLock   = require("kintastic/lib/TableLock")
+local TtsMsgUtils  = require("kintastic/lib/TtsMsgUtils")
 local TtsObject   = require("kintastic/lib/Promise/TtsObject")
 local TtsObjUtils = require("kintastic/lib/TtsObjUtils")
 local App         = require("mods/Brass/lib/App")
 
 -- Imports.
-local const         = Const.const
-local rconst        = Const.rconst
-local ivalues       = Iters.ivalues
-local starts_with   = StrUtils.starts_with
-local lock          = TableLock.lock
-local rlock         = TableLock.rlock
-local take_object   = TtsObject.takeObject
-local resolve_guids = TtsObjUtils.resolve_guids
+local const           = Const.const
+local rconst          = Const.rconst
+local ivalues         = Iters.ivalues
+local starts_with     = StrUtils.starts_with
+local lock            = TableLock.lock
+local rlock           = TableLock.rlock
+local broadcast_error = TtsMsgUtils.broadcast_error
+local take_object     = TtsObject.takeObject
+local resolve_guids   = TtsObjUtils.resolve_guids
 
 -- The class.
 local BirminghamApp = {
@@ -290,6 +292,32 @@ end
 
 
 -- ================================================================================
+-- Game advancement
+
+function BirminghamApp:end_turn()
+   local state = self.state
+
+   local current_player = state:get_current_player()
+
+   -- Check if the player actually completed their turn.
+   if not state:get_opt_skip_discard_check() then
+      if not self:are_discards_full(current_player) then
+         local player = Player[current_player]
+         if player.seated then
+            broadcast_error(current_player .. ", you can’t end your turn because you don’t have exactly 1 or 3 cards in each of your discard piles!", current_player)
+         else
+            broadcast_error("The round can’t be ended because " .. current_player .. " doesn’t have exactly 1 or 3 cards in each of their discard piles!")
+         end
+
+         return Promise:resolve()
+      end
+   end
+
+   return SUPER.end_turn(self)
+end
+
+
+-- ================================================================================
 -- Setup
 
 function BirminghamApp:setup_canal_era()
@@ -385,6 +413,67 @@ function BirminghamApp:restock_beer()
             break
          end
       end
+   end
+
+   return
+      Promise:all_settled(promises)
+      :next(Promise.all_settled_error_logger)
+end
+
+
+-- ================================================================================
+-- Discard pile manipulations
+
+function BirminghamApp:are_discards_full(color_name)
+   for i = 1, 2 do
+      local count = self:get_discarded_count(color_name, i)
+      if count ~= 1 and count ~= 3 then
+         return false
+      end
+   end
+
+   return true
+end
+
+
+function BirminghamApp:clear_discarded_card(card)
+   local id = card.getGMNotes()
+   if id == "Wild Location Card" then
+      card.setLock(false)
+      return
+         set_transform_smooth(card, {
+            position = self.objects.wild_location_deck_zone.getPosition(),
+            rotation = self.objects.wild_location_deck_zone.getRotation(),
+         })
+         :catch(||error("Error moving wild location card"))
+   elseif id == "Wild Industry Card" then
+      card.setLock(false)
+      return
+         set_transform_smooth(card, {
+            position = self.objects.wild_industry_deck_zone.getPosition(),
+            rotation = self.objects.wild_industry_deck_zone.getRotation(),
+         })
+         :catch(||error("Error moving wild industry card"))
+   else
+      card.destruct()
+      return Promise:resolve()
+   end
+end
+
+
+function BirminghamApp:clear_discarded_deck(deck)
+   local promises = { }
+   local pos = deck.getPosition()
+   local inc = Vector({ 0, 0.2, 0 })
+   for i = 1, #deck.getObjects() do
+      pos = pos + inc
+      table.insert(promises,
+         take_object(deck, {
+            index = 1,
+            position = pos,
+         })
+         :next(|card|self:clear_discarded_card(card))
+      )
    end
 
    return
