@@ -109,7 +109,7 @@ end
 -- Object initialization
 
 function App:init(saved_state_json)
-   -- self.initial_funds and self.loan_amount are populated by subclasses.
+   -- self.initial_funds, self.loan_amount and self.money_value are populated by subclasses.
 
    self:init_state(saved_state_json)
    self:init_industry_tile_data()   -- self.industry_tile_data populated by subclass.
@@ -939,8 +939,8 @@ end
 
 
 function App:end_era()
-   local link_points_by_color_name     = { ["Orange"]=0,  ["Purple"]=0,  ["Teal"]=0,  ["Yellow"]=0  }
-   local industry_points_by_color_name = { ["Orange"]=0,  ["Purple"]=0,  ["Teal"]=0,  ["Yellow"]=0  }
+   local link_points_by_color_name     = { ["Orange"]=0, ["Purple"]=0, ["Teal"]=0, ["Yellow"]=0 }
+   local industry_points_by_color_name = { ["Orange"]=0, ["Purple"]=0, ["Teal"]=0, ["Yellow"]=0 }
 
    self:adjust_link_tile_values()
 
@@ -979,18 +979,20 @@ function App:end_era()
       local income_marker = player.income_marker
       local wallet_bowl = player.wallet_bowl
 
-      local link_points     = link_points_by_color_name[color_name]
-      local industry_points = industry_points_by_color_name[color_name]
-      local points          = link_points + industry_points
-      local total           = self:get_track_position_offset(score_marker) + points
+      local money = self:update_bowl(wallet_bowl)
 
       local income_of = self:get_track_position_offset(income_marker)
       local income = self:income_by_track_offset(income_of)
 
-      local money = self:update_bowl(wallet_bowl)
+      local money_points    = self.money_value and math.floor( money / self.money_value ) or 0
+      local link_points     = link_points_by_color_name[color_name]
+      local industry_points = industry_points_by_color_name[color_name]
+      local points          = money_points + link_points + industry_points
+      local total           = self:get_track_position_offset(score_marker) + points
 
       table.insert(score_info_recs, {
          color_name      = color_name,
+         money_points    = money_points,
          link_points     = link_points,
          industry_points = industry_points,
          points          = points,
@@ -1060,15 +1062,22 @@ function App:end_era()
       -- more than one to the same location can knock them over.
       promise = promise:next(
          function()
-            local message_color = stringColorToRGB(color_name)
-            printToAll(
-               "#" .. score_info_rec.ranking .. ": " .. color_name .. " scored " ..
+            local msg =
+               "#" .. score_info_rec.ranking .. ": " ..
+               color_name .. " scored " ..
                score_info_rec.points .. " points for a total of " ..
-               score_info_rec.total .. "! (" ..
+               score_info_rec.total .. "! ("
+
+            if self.money_value then
+               msg = msg .. score_info_rec.money_points .. " for money, "
+            end
+
+            msg = msg ..
                score_info_rec.link_points .. " for links, " ..
-               score_info_rec.industry_points .. " for industries) ",
-               message_color
-            )
+               score_info_rec.industry_points .. " for industries" ..
+               ")"
+
+            printToAll(msg, color_name)
 
             return self:move_marker(score_marker, score_info_rec.total)
          end
@@ -1105,6 +1114,25 @@ end
 
 
 function App:start_round()
+   return
+      self:do_start_round()
+      :finally(
+         function()
+            local state = self.state
+
+            if state:get_current_phase() == App.Phases.CANAL_ERA_ROUND then
+               print_info("Start of Canal Era Round " .. state:get_current_round() .. " of " .. state:get_num_rounds() .. "!")
+            else
+               print_info("Start of Rail Era Round " .. state:get_current_round() .. " of " .. state:get_num_rounds() .. "!")
+            end
+
+            self:announce_player_turn(state:get_current_player())
+         end
+      )
+end
+
+
+function App:do_start_round()
    local state = self.state
 
    local promises = { }
@@ -1121,17 +1149,6 @@ function App:start_round()
    return
       Promise:all_settled(promises)
       :next(Promise.all_settled_error_logger)
-      :finally(
-         function()
-            if state:get_current_phase() == App.Phases.CANAL_ERA_ROUND then
-               print_info("Start of Canal Era Round " .. state:get_current_round() .. " of " .. state:get_num_rounds() .. "!")
-            else
-               print_info("Start of Rail Era Round " .. state:get_current_round() .. " of " .. state:get_num_rounds() .. "!")
-            end
-
-            self:announce_player_turn(state:get_current_player())
-         end
-      )
 end
 
 
@@ -2281,12 +2298,20 @@ end
 -- Misc
 
 function App:get_deck()
-   local deck
-   local card_count
+   local decks = { }
    for obj in ivalues(self.objects.play_deck_zone.getObjects()) do
       if obj.name == "Deck" or obj.name == "Card" then
-         return obj
+         table.insert(decks, obj)
       end
+   end
+
+   if #decks == 0 then
+      return
+   elseif #decks == 1 then
+      return decks[1]
+   else
+      table.sort(decks, |a,b|b.getPosition().y < a.getPosition().y)
+      return decks[1]   -- Top deck
    end
 end
 

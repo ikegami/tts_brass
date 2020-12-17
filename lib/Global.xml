@@ -34,15 +34,15 @@
    <Button class="topButtons" id="minimizeButton" onClick="on_click_min_max_window"/>
    <Panel class="mainPanel" id="OrangeContent">
       <GridLayout cellSize="50,50" spacing="10" childAlignment="MiddleCenter">
-         <Button onClick="on_click_add1"       colors="white|#E06726|grey|"><Text class="buttonText">+1</Text></Button>
-         <Button onClick="on_click_add5"       colors="white|#E06726|grey|"><Text class="buttonText">+5</Text></Button>
-         <Button onClick="on_click_add15"      colors="white|#E06726|grey|"><Text class="buttonText">+15</Text></Button>
-         <Button onClick="on_click_pay1"       colors="white|#E06726|grey|"><Text class="buttonText">-1</Text></Button>
-         <Button onClick="on_click_pay5"       colors="white|#E06726|grey|"><Text class="buttonText">-5</Text></Button>
-         <Button onClick="on_click_pay15"      colors="white|#E06726|grey|"><Text class="buttonText">-15</Text></Button>
-         <Button onClick="on_click_income_inc" colors="white|#E06726|grey|"><Image image="Income Orange Inc"></Image></Button>
-         <Button onClick="on_click_take_loan"  colors="white|#E06726|grey|"><Image image="Loan Orange"></Image></Button>
-         <Button onClick="on_click_income_dec" colors="white|#E06726|grey|"><Image image="Income Orange Dec"></Image></Button>
+         <Button                     onClick="on_click_add1"       colors="white|#E06726|grey|#646464"><Text class="buttonText">+1</Text></Button>
+         <Button                     onClick="on_click_add5"       colors="white|#E06726|grey|#646464"><Text class="buttonText">+5</Text></Button>
+         <Button                     onClick="on_click_add15"      colors="white|#E06726|grey|#646464"><Text class="buttonText">+15</Text></Button>
+         <Button                     onClick="on_click_pay1"       colors="white|#E06726|grey|#646464"><Text class="buttonText">-1</Text></Button>
+         <Button                     onClick="on_click_pay5"       colors="white|#E06726|grey|#646464"><Text class="buttonText">-5</Text></Button>
+         <Button                     onClick="on_click_pay15"      colors="white|#E06726|grey|#646464"><Text class="buttonText">-15</Text></Button>
+         <Button                     onClick="on_click_income_inc" colors="white|#E06726|grey|#646464"><Image image="Income Orange Inc"></Image></Button>
+         <Button id="OrangeLoanBttn" onClick="on_click_take_loan"  colors="white|#E06726|grey|#646464"><Image id="OrangeLoanImg" image="Loan Orange"></Image></Button>
+         <Button                     onClick="on_click_income_dec" colors="white|#E06726|grey|#646464"><Image image="Income Orange Dec"></Image></Button>
       </GridLayout>
    </Panel>
 </Panel>
@@ -53,15 +53,15 @@
    <Button class="topButtons" id="minimizeButton" onClick="on_click_min_max_window"/>
    <Panel class="mainPanel" id="PurpleContent">
       <GridLayout cellSize="50,50" spacing="10" childAlignment="MiddleCenter">
-         <Button onClick="on_click_add1"       colors="white|#77347f|grey|"><Text class="buttonText">+1</Text></Button>
-         <Button onClick="on_click_add5"       colors="white|#77347f|grey|"><Text class="buttonText">+5</Text></Button>
-         <Button onClick="on_click_add15"      colors="white|#77347f|grey|"><Text class="buttonText">+15</Text></Button>
-         <Button onClick="on_click_pay1"       colors="white|#77347f|grey|"><Text class="buttonText">-1</Text></Button>
-         <Button onClick="on_click_pay5"       colors="white|#77347f|grey|"><Text class="buttonText">-5</Text></Button>
-         <Button onClick="on_click_pay15"      colors="white|#77347f|grey|"><Text class="buttonText">-15</Text></Button>
-         <Button onClick="on_click_income_inc" colors="white|#77347f|grey|"><Image image="Income Purple Inc"></Image></Button>
-         <Button onClick="on_click_take_loan"  colors="white|#77347f|grey|"><Image image="Loan Purple"></Image></Button>
-         <Button onClick="on_click_income_dec" colors="white|#77347f|grey|"><Image image="Income Purple Dec"></Image></Button>
+         <Button                     onClick="on_click_add1"       colors="white|#77347f|grey|#646464"><Text class="buttonText">+1</Text></Button>
+         <Button                     onClick="on_click_add5"       colors="white|#77347f|grey|#646464"><Text class="buttonText">+5</Text></Button>
+         <Button                     onClick="on_click_add15"      colors="white|#77347f|grey|#646464"><Text class="buttonText">+15</Text></Button>
+         <Button                     onClick="on_click_pay1"       colors="white|#77347f|grey|#646464"><Text class="buttonText">-1</Text></Button>
+         <Button                     onClick="on_click_pay5"       colors="white|#77347f|grey|#646464"><Text class="buttonText">-5</Text></Button>
+         <Button                     onClick="on_click_pay15"      colors="white|#77347f|grey|#646464"><Text class="buttonText">-15</Text></Button>
+         <Button                     onClick="on_click_income_inc" colors="white|#77347f|grey|#646464"><Image image="Income Purple Inc"></Image></Button>
+         <Button id="PurpleLoanBttn" onClick="on_click_take_loan"  colors="white|#77347f|grey|#646464"><Image id="PurpleLoanImg" image="Loan Purple"></Image></Button>
+         <Button                     onClick="on_click_income_dec" colors="white|#77347f|grey|#646464"><Image image="Income Purple Dec"></Image></Button>
       </GridLayout>
    </Panel>
 </Panel>
@@ -72,15 +72,15 @@
    <Button class="topButtons" id="minimizeButton" onClick="on_click_min_max_window"/>
    <Panel class="mainPanel" id="TealContent">
       <GridLayout cellSize="50,50" spacing="10" childAlignment="MiddleCenter">
-         <Button onClick="on_click_add1"       colors="white|#8DD1C6|grey|"><Text class="buttonText">+1</Text></Button>
-         <Button onClick="on_click_add5"       colors="white|#8DD1C6|grey|"><Text class="buttonText">+5</Text></Button>
-         <Button onClick="on_click_add15"      colors="white|#8DD1C6|grey|"><Text class="buttonText">+15</Text></Button>
-         <Button onClick="on_click_pay1"       colors="white|#8DD1C6|grey|"><Text class="buttonText">-1</Text></Button>
-         <Button onClick="on_click_pay5"       colors="white|#8DD1C6|grey|"><Text class="buttonText">-5</Text></Button>
-         <Button onClick="on_click_pay15"      colors="white|#8DD1C6|grey|"><Text class="buttonText">-15</Text></Button>
-         <Button onClick="on_click_income_inc" colors="white|#8DD1C6|grey|"><Image image="Income Teal Inc"></Image></Button>
-         <Button onClick="on_click_take_loan"  colors="white|#8DD1C6|grey|"><Image image="Loan Teal"></Image></Button>
-         <Button onClick="on_click_income_dec" colors="white|#8DD1C6|grey|"><Image image="Income Teal Dec"></Image></Button>
+         <Button                   onClick="on_click_add1"       colors="white|#8DD1C6|grey|#646464"><Text class="buttonText">+1</Text></Button>
+         <Button                   onClick="on_click_add5"       colors="white|#8DD1C6|grey|#646464"><Text class="buttonText">+5</Text></Button>
+         <Button                   onClick="on_click_add15"      colors="white|#8DD1C6|grey|#646464"><Text class="buttonText">+15</Text></Button>
+         <Button                   onClick="on_click_pay1"       colors="white|#8DD1C6|grey|#646464"><Text class="buttonText">-1</Text></Button>
+         <Button                   onClick="on_click_pay5"       colors="white|#8DD1C6|grey|#646464"><Text class="buttonText">-5</Text></Button>
+         <Button                   onClick="on_click_pay15"      colors="white|#8DD1C6|grey|#646464"><Text class="buttonText">-15</Text></Button>
+         <Button                   onClick="on_click_income_inc" colors="white|#8DD1C6|grey|#646464"><Image image="Income Teal Inc"></Image></Button>
+         <Button id="TealLoanBttn" onClick="on_click_take_loan"  colors="white|#8DD1C6|grey|#646464"><Image id="TealLoanImg" image="Loan Teal"></Image></Button>
+         <Button                   onClick="on_click_income_dec" colors="white|#8DD1C6|grey|#646464"><Image image="Income Teal Dec"></Image></Button>
       </GridLayout>
    </Panel>
 </Panel>
@@ -91,15 +91,15 @@
    <Button class="topButtons" id="minimizeButton" onClick="on_click_min_max_window"/>
    <Panel class="mainPanel" id="YellowContent">
       <GridLayout cellSize="50,50" spacing="10" childAlignment="MiddleCenter">
-         <Button onClick="on_click_add1"       colors="white|#DCDA3D|grey|"><Text class="buttonText">+1</Text></Button>
-         <Button onClick="on_click_add5"       colors="white|#DCDA3D|grey|"><Text class="buttonText">+5</Text></Button>
-         <Button onClick="on_click_add15"      colors="white|#DCDA3D|grey|"><Text class="buttonText">+15</Text></Button>
-         <Button onClick="on_click_pay1"       colors="white|#DCDA3D|grey|"><Text class="buttonText">-1</Text></Button>
-         <Button onClick="on_click_pay5"       colors="white|#DCDA3D|grey|"><Text class="buttonText">-5</Text></Button>
-         <Button onClick="on_click_pay15"      colors="white|#DCDA3D|grey|"><Text class="buttonText">-15</Text></Button>
-         <Button onClick="on_click_income_inc" colors="white|#DCDA3D|grey|"><Image image="Income Yellow Inc"></Image></Button>
-         <Button onClick="on_click_take_loan"  colors="white|#DCDA3D|grey|"><Image image="Loan Yellow"></Image></Button>
-         <Button onClick="on_click_income_dec" colors="white|#DCDA3D|grey|"><Image image="Income Yellow Dec"></Image></Button>
+         <Button                     onClick="on_click_add1"       colors="white|#DCDA3D|grey|#646464"><Text class="buttonText">+1</Text></Button>
+         <Button                     onClick="on_click_add5"       colors="white|#DCDA3D|grey|#646464"><Text class="buttonText">+5</Text></Button>
+         <Button                     onClick="on_click_add15"      colors="white|#DCDA3D|grey|#646464"><Text class="buttonText">+15</Text></Button>
+         <Button                     onClick="on_click_pay1"       colors="white|#DCDA3D|grey|#646464"><Text class="buttonText">-1</Text></Button>
+         <Button                     onClick="on_click_pay5"       colors="white|#DCDA3D|grey|#646464"><Text class="buttonText">-5</Text></Button>
+         <Button                     onClick="on_click_pay15"      colors="white|#DCDA3D|grey|#646464"><Text class="buttonText">-15</Text></Button>
+         <Button                     onClick="on_click_income_inc" colors="white|#DCDA3D|grey|#646464"><Image image="Income Yellow Inc"></Image></Button>
+         <Button id="YellowLoanBttn" onClick="on_click_take_loan"  colors="white|#DCDA3D|grey|#646464"><Image id="YellowLoanImg" image="Loan Yellow"></Image></Button>
+         <Button                     onClick="on_click_income_dec" colors="white|#DCDA3D|grey|#646464"><Image image="Income Yellow Dec"></Image></Button>
       </GridLayout>
    </Panel>
 </Panel>

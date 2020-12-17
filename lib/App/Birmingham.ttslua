@@ -45,6 +45,7 @@ function BirminghamApp:init(saved_state_json)
    SUPER.init(self, saved_state_json)
    self.initial_funds = 17
    self.loan_amount = 30
+   self.money_value = false
 end
 
 
