@@ -13,7 +13,7 @@ if debug then require("kintastic/lib/Debug").import_into_global()    end
 if devel then require("kintastic/lib/Devel").import_event_handlers() end
 
 TableLock.declare_and_set(_G, "onLoad",
-   function()
+   function(saved_state_json)
       local App
       if game == "Lancashire" then
          App = require("mods/Brass/lib/App/Lancashire")
@@ -23,6 +23,6 @@ TableLock.declare_and_set(_G, "onLoad",
          error("Invalid value for \"game\".")
       end
 
-      App:new():run()
+      App:new(saved_state_json):run()
    end
 )
