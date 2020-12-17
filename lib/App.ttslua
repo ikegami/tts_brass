@@ -123,7 +123,7 @@ function App:init_state(saved_state_json)
    self.state = State:new(self)
 
    if saved_state_json and saved_state_json ~= "" then
-      log("Loading saved game.")
+      print("Loading saved game.")
       local saved_state = JSON.decode(saved_state_json)
       self.state:merge_saved_state(saved_state)
    end
