@@ -362,6 +362,7 @@ function LancashireApp:setup_distant_market()
          promise = self:spawn_distant_market_deck(distant_market_bag)
       else
          distant_market_bag.destruct()
+         objects.distant_market_bags[i] = nil
       end
    end
 
@@ -413,6 +414,8 @@ function LancashireApp:reset_distant_market()
       table.insert(promises, self:spawn_distant_market_deck(distant_market_bag))
 
       distant_market_bag.destruct()
+      objects.distant_market_bags[ num_players - 1 ] = nil
+
    end
 
    return

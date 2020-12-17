@@ -186,10 +186,12 @@ function App:init_objects()
    }
 
    if state:get_game_started() then
+      local rail_era_started = state:get_current_phase() >= App.Phases.RAIL_ERA_ROUND
+
       guids.start_button = nil
 
       guids.card_deck_bags = pick(guids.card_deck_bags,
-         |i, guid|i == state:get_num_players() - 1 and state:get_current_phase() < App.Phases.RAIL_ERA_ROUND
+         |i, guid|i == state:get_num_players() - 1 and not rail_era_started
       )
 
       guids.players = pick(guids.players,
@@ -199,6 +201,14 @@ function App:init_objects()
       guids.player_turns = filter(guids.player_turns,
          |i, player_turn|i <= state:get_num_players()
       )
+
+      for color_name in ivalues(state:get_active_players()) do
+         local player = guids.players[color_name]
+         player.canal_link = nil
+         if rail_era_started then
+            player.railway_link = nil
+         end
+      end
    end
 
    self.objects = rlock(resolve_guids(guids))
@@ -862,6 +872,7 @@ function App:start_game()
 
    -- Destroy the start button.
    objects.start_button.destruct()
+   objects.start_button = nil
 
    -- Remove absent player colors.
    for color_name, player in pairs(objects.players) do
@@ -872,6 +883,7 @@ function App:start_game()
          player.link_bag.destruct()
          player.canal_link.destruct()
          player.railway_link.destruct()
+         objects.players[color_name] = nil
       end
    end
 
@@ -1271,6 +1283,7 @@ function App:setup_deck_canal_era()
             :next(|deck|wait_condition(||deck.resting, deck, 3, "Timeout setting up deck."))
       else
          card_deck_bag.destruct()
+         objects.card_deck_bags[i] = nil
       end
    end
 
@@ -1323,6 +1336,7 @@ function App:provide_links(link_type, link_name)
       end
 
       tile.destruct()
+      player[link_type] = nil
    end
 
    return
@@ -1347,6 +1361,7 @@ function App:setup_deck_rail_era()
          function(deck)
             deck.shuffle()
             card_deck_bag.destruct()
+            objects.card_deck_bags[ num_players - 1 ] = nil
             return deck
          end
       )

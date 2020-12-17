@@ -366,6 +366,7 @@ function BirminghamApp:distribute_merchant_tiles()
          end
       else
          merchant_tile_deck.destruct()
+         objects.merchant_tile_decks[i] = nil
       end
    end
 
