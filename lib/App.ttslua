@@ -1403,7 +1403,7 @@ function App:remove_level1_industries()
 
          if found then
             for obj in ivalues(loc_square.getObjects()) do
-               local name = obj.getName()
+               local name = obj.getGMNotes()
                if self.resource_id_by_name[name] then
                   obj.destruct()
                end
@@ -1480,7 +1480,7 @@ function App:get_player_turn_index(color_name)
    for i = 1, self.state:get_num_players() do
       local zone = player_turns[i].turn_order_token_zone
       for obj in ivalues(zone.getObjects()) do
-         local name, token_color_name = decolor(obj.getName())
+         local name, token_color_name = decolor(obj.getGMNotes())
          if name == "Player" then
             if token_color_name == color_name then
                return i
@@ -1503,7 +1503,7 @@ function App:get_next_color_name()
    for i = 1, self.state:get_num_players() do
       local zone = player_turns[i].turn_order_token_zone
       for obj in ivalues(zone.getObjects()) do
-         local name, token_color_name = decolor(obj.getName())
+         local name, token_color_name = decolor(obj.getGMNotes())
          if name == "Player" then
             if token_color_name == current_player then
                found_current = true
@@ -1528,7 +1528,7 @@ function App:determine_new_turn_order()
       local zone = player_turn.turn_order_token_zone
       local color_name = nil
       for obj in ivalues(zone.getObjects()) do
-         local name, token_color_name = decolor(obj.getName())
+         local name, token_color_name = decolor(obj.getGMNotes())
          if name == "Player" then
             color_name = token_color_name
             break
@@ -1645,7 +1645,7 @@ function App:add_resource_to_market(color_name, resource)
    for i, zone in ipairs_desc(resource.market_zones) do
       local has_resource = false
       for obj in ivalues(zone.getObjects()) do
-         if obj.getName() == resource.resource_name then
+         if obj.getGMNotes() == resource.resource_name then
             has_resource = true
             break
          end
@@ -1665,7 +1665,7 @@ function App:sub_resource_from_market(color_name, resource)
    for i, zone in ipairs(resource.market_zones) do
       local had_resource = false
       for obj in ivalues(zone.getObjects()) do
-         if obj.getName() == resource.resource_name then
+         if obj.getGMNotes() == resource.resource_name then
             obj.destruct()
             local value = math.floor((i+1) / 2)
             printToAll(color_name .. " removed " .. resource.resource_name .. " valued at £" .. value .. ".", color_name)
@@ -1749,7 +1749,7 @@ function App:sift_bowl_contents(bowl_contents)
    }
 
    for obj in ivalues(bowl_contents) do
-      local name = obj.getName()
+      local name = obj.getGMNotes()
       if coins[name] then
          table.insert(coins[name], obj)
       end
@@ -2049,7 +2049,7 @@ function App:give_income()
    local incomes = { }
    for i, zone in ipairs(self.objects.track_zones) do
       for obj in ivalues(zone.getObjects()) do
-         local name, color_name = decolor(obj.getName())
+         local name, color_name = decolor(obj.getGMNotes())
          if name == "Income Marker" then
             incomes[color_name] = self:income_by_track_offset(i-1)
          end
@@ -2153,7 +2153,7 @@ function App:validate_location(loc_name)
                found = true
                tiles[obj] = true  -- Check for tiles that span more than one location.
             end
-         elseif self.resource_id_by_name[ obj.getName() ] then
+         elseif self.resource_id_by_name[ obj.getGMNotes() ] then
             -- Ignore Coal, Iron and Beer.
          elseif obj == self.objects.game_board or obj == self.objects.game_table then
             -- Ignore the game board and the game table.

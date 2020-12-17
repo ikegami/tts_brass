@@ -397,7 +397,7 @@ function BirminghamApp:restock_beer()
          if starts_with(obj.getGMNotes(), "Buys ") then
             local needs_replenishing = true
             for obj in ivalues(beer_zone.getObjects()) do
-               if obj.getName() == "Beer" then
+               if obj.getGMNotes() == "Beer" then
                   needs_replenishing = false
                   break
                end
