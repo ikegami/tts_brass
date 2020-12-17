@@ -79,7 +79,6 @@ function State.new(class, app)
    self.is_option_name = is_option_name
 
    state.current_phase = app.Phases.NOT_STARTED
-   state.game_started  = false
 
    self:update_derived()
 
