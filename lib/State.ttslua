@@ -98,7 +98,6 @@ for state_var in ivalues(state_vars) do
    State["set_" .. state_var] = function(self, val)
       self.state[state_var] = val
       self:update_derived()
-      return self.state[state_var]
    end
 end
 
@@ -123,7 +122,6 @@ for option_name in ivalues(option_names) do
 
    State["set_opt_" .. option_name] = function(self, val)
       self.opts[option_name] = val
-      return self.opts[option_name]
    end
 end
 
