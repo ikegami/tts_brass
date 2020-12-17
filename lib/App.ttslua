@@ -518,6 +518,9 @@ function App:update_ui()
    UI.setAttribute("advance_game_button_teal_box",   "active", authorized == "Teal")
    UI.setAttribute("advance_game_button_yellow_box", "active", authorized == "Yellow")
 
+   local debouncer = self.advance_game_button
+   debouncer:set_opt_cool_down( state:get_opt_cool_down() or 1.5 )
+
    if announce then
       self:announce_admin_turn()
    end
