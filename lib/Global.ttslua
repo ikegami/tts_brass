@@ -15,7 +15,9 @@ if devel then require("kintastic/lib/Devel").import_event_handlers() end
 TableLock.declare_and_set(_G, "onLoad",
    function()
       local App
-      if game == "Birmingham" then
+      if game == "Lancashire" then
+         App = require("mods/Brass/lib/App/Lancashire")
+      elseif game == "Birmingham" then
          App = require("mods/Brass/lib/App/Birmingham")
       else
          error("Invalid value for \"game\".")

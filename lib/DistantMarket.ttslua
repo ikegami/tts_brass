@@ -1,0 +1,12 @@
+function onLoad()
+   -- Clickable area
+   self.createButton({
+      owner          = Global,
+      click_function = "on_click_sell_to_distant_market",
+      position       = { 0, 0.2, 0.05 },
+      height         = 900,
+      width          = 850,
+      color          = { 1, 1, 1, 0 },
+      label          = "",
+   })
+end
