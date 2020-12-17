@@ -1,11 +1,11 @@
 Title: Information
 
-Welcome! Once everyone is seated, press either of the "Start Game" buttons to start.
+Welcome! Once everyone is seated, press either of the “Start Game” buttons to start.
 
 The game gives chances to review and make correction at critical times:
-- Income only happens when "Start the Next Round" and "Start the Rail Era" are clicked.
-- Scoring only happens when "Score the Canal Era" is clicked.
-- Clearing the board of links and industries only happens when "Start the Rail Era" is clicked.
+- Income only happens when “Start the Next Round” and “Start the Rail Era” are clicked.
+- Scoring only happens when “Score the Canal Era” is clicked.
+- Clearing the board of links and industries only happens when “Start the Rail Era” is clicked.
 
 When taking the Double Build action, simply place a card in each discard pile as normal.
 
@@ -26,4 +26,4 @@ The script is very tolerant of people dropping. The host and promoted players ca
 
 The value of links are updated with every click of the button.
 
-"/execute start(n)" in the chat will start the game with missing players. (Use a number of players instead of "n".)
+“/execute start(n)” in the chat will start the game with missing players. (Use a number of players instead of “n”.)

@@ -1,4 +1,4 @@
 Title: Change Log
 
 [2020-~~-~~ Kinithin]
-- Initial version based on the Brass: Lancashire assets by Draxous and the Brass: Birmingham code by Kinithin.
+- Initial version. Based on the Brass: Lancashire assets by Draxous and the Brass: Birmingham code by Kinithin. Thanks for Eldin’s help with the model for the distant cotton market.
