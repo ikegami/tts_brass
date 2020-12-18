@@ -68,6 +68,7 @@ local broadcast_error          = TtsMsgUtils.broadcast_error
 local broadcast_info           = TtsMsgUtils.broadcast_info
 local broadcast_internal_error = TtsMsgUtils.broadcast_internal_error
 local pulse_obj                = TtsMsgUtils.pulse_obj
+local print_error              = TtsMsgUtils.print_error
 local print_info               = TtsMsgUtils.print_info
 local get_abs_height           = TtsObject.get_abs_height
 local get_drop_pos             = TtsObject.get_drop_pos
@@ -2149,6 +2150,7 @@ function App:validate_location(loc_name)
             if tile_data then
                if found or tiles[obj] then
                   broadcast_error("Unexpected object found at " .. loc_square_name .. "!")
+                  print_error("Check for stacks and for tiles spanning multiple locations.")
                   return false
                end
 
@@ -2166,6 +2168,7 @@ function App:validate_location(loc_name)
                -- Ignore the game board and the game table.
             else
                broadcast_error("Unexpected object found at " .. loc_square_name .. "!")
+               print_error("Check for stacks and for tiles spanning multiple locations.")
                return false
             end
          end
