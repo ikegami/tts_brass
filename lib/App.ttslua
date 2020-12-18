@@ -14,16 +14,21 @@
 -- /execute start({ min_players = 2, skip_discard_check = true, cool_down = 0 })
 
 -- TODO:
--- - This module is monolithic! It needs to be split up.
--- - Add cool-down to control panel buttons (but delay them rather than dropping them)?
+-- - Use tiles intead of cards for industry tiles to notice stacks (Brass:B).
 -- - Prevent scoring if the board fails to validate?
+-- - Add debounce or cool-down to control panel buttons (but delay them rather than dropping them)?
+--
+-- - Hot seat support?
+-- - Replace start game buttons with buttons to start with virtual players?
 -- - Modify `remove_money_from_player` so that money is moved from wallet?
 --   -> Timing problems?
 -- - Support Income and Scores over 99?
 --   -> Technically, final scores over 99 are supported.
 --   -> Income over 99 is *extremely* unlikely.
 --   -> Score over 99 before final scoring is *very* unlikely.
--- - Collapse similar messages into one?
+--
+-- - This module is monolithic! It needs to be split up.
+-- - Use GMNotes instead of guids.
 
 -- ================================================================================
 
