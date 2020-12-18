@@ -765,7 +765,15 @@ end
 function App:announce_admin_turn()
    self:cancel_announcement()
    announcement_stopper = pulse_obj(self.objects.game_board_area, Color.Blue)
-   self.objects.sound_effects.AssetBundle.playTriggerEffect(0)
+
+   local current_phase = self.state:get_current_phase()
+   if current_phase < App.Phases.INTER_ERA then
+      self.objects.sound_effects.AssetBundle.playTriggerEffect(1)
+   elseif current_phase < App.Phases.GAME_ENDED then
+      self.objects.sound_effects.AssetBundle.playTriggerEffect(2)
+   else
+      self.objects.sound_effects.AssetBundle.playTriggerEffect(3)
+   end
 end
 
 
