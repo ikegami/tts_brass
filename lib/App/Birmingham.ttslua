@@ -8,21 +8,22 @@ local Iters       = require("kintastic/lib/Iters")
 local Promise     = require("kintastic/lib/Promise")
 local StrUtils    = require("kintastic/lib/StrUtils")
 local TableLock   = require("kintastic/lib/TableLock")
-local TtsMsgUtils  = require("kintastic/lib/TtsMsgUtils")
+local TtsMsgUtils = require("kintastic/lib/TtsMsgUtils")
 local TtsObject   = require("kintastic/lib/Promise/TtsObject")
 local TtsObjUtils = require("kintastic/lib/TtsObjUtils")
 local App         = require("mods/Brass/lib/App")
 
 -- Imports.
-local const           = Const.const
-local rconst          = Const.rconst
-local ivalues         = Iters.ivalues
-local starts_with     = StrUtils.starts_with
-local lock            = TableLock.lock
-local rlock           = TableLock.rlock
-local broadcast_error = TtsMsgUtils.broadcast_error
-local take_object     = TtsObject.takeObject
-local resolve_guids   = TtsObjUtils.resolve_guids
+local const                = Const.const
+local rconst               = Const.rconst
+local ivalues              = Iters.ivalues
+local starts_with          = StrUtils.starts_with
+local lock                 = TableLock.lock
+local rlock                = TableLock.rlock
+local broadcast_error      = TtsMsgUtils.broadcast_error
+local set_transform_smooth = TtsObject.setTransformSmooth
+local take_object          = TtsObject.takeObject
+local resolve_guids        = TtsObjUtils.resolve_guids
 
 -- The class.
 local BirminghamApp = {
