@@ -1,8 +1,9 @@
 Title: Change Log
 
 [2020-~~-~~ Kinithin]
+- Switched from using cards to using tiles for the industry tiles. This makes it more obvious that there are multiple of some times.
 - Players no longer have an infinite supply of links.
-- Solve a problem where players couldn`t see the cards in their hands.
+- Solve a problem where players couldn’t see the cards in their hands.
 - Player tokens are now two-sided like in the physical game. A side is chosen randomly at game start.
 - The scores are now announced in (reverse) order of placement. This uses the tie-breakers if required.
 - A sound effect is now played any time the game becomes ready to be advanced, not just when it becomes someone’s turn.

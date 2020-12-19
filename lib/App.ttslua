@@ -14,8 +14,8 @@
 -- /execute start({ min_players = 2, skip_discard_check = true, cool_down = 0 })
 
 -- TODO:
--- - Use tiles intead of cards for industry tiles to notice stacks (Brass:B).
 -- - Prevent scoring if the board fails to validate?
+-- - Prevent Rail Era start if players have cards in their hands?
 -- - Add debounce or cool-down to control panel buttons (but delay them rather than dropping them)?
 --
 -- - Hot seat support?
