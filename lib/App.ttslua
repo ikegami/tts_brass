@@ -2036,7 +2036,7 @@ function App:take_loan(color_name)
    :next(Promise.all_settled_error_logger)
    :finally(
       function()
-         printToAll(color_name .. " took a loan. They gained £30 and their income was decreased by three steps to " .. income .. " (from position " .. old_ofs .. ").", color_name)
+         printToAll(color_name .. " took a loan. They gained £".. loan_amount .. " and their income was decreased by " .. loan_steps .. " steps to " .. income .. " (from position " .. old_ofs .. ").", color_name)
       end
    )
    :done()
