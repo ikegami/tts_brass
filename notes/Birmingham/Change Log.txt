@@ -1,6 +1,6 @@
 Title: Change Log
 
-[2020-~~-~~ Kinithin]
+[2020-12-19 Kinithin]
 - Switched from using cards to using tiles for the industry tiles. This makes it more obvious that there are multiple of some times.
 - Players no longer have an infinite supply of links.
 - Solve a problem where players couldn’t see the cards in their hands.
