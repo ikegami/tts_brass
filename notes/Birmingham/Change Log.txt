@@ -1,7 +1,7 @@
 Title: Change Log
 
 [2020-12-19 Kinithin]
-- Switched from using cards to using tiles for the industry tiles. This makes it more obvious that there are multiple of some times.
+- Switched from using cards to using tiles for the industry tiles. This makes it more obvious that there are multiple of some tiles.
 - Players no longer have an infinite supply of links.
 - Solved a problem where players couldn’t see the cards in their hands.
 - Player tokens are now two-sided like in the physical game. A side is chosen randomly at game start.
