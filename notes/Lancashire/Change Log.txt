@@ -1,4 +1,7 @@
 Title: Change Log
 
+[2020-12-21 Kinithin]
+- Fixed a (basically harmless) error that would occur every 10s a player had a color other than those used by the mod.
+
 [2020-12-19 Kinithin]
 - Initial version. Based on the Brass: Lancashire assets by Draxous and the Brass: Birmingham code by Kinithin. Thanks for Eldin’s help with the model for the distant cotton market.

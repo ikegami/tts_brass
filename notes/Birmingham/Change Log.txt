@@ -1,5 +1,8 @@
 Title: Change Log
 
+[2020-12-21 Kinithin]
+- Fixed a (basically harmless) error that would occur every 10s a player had a color other than those used by the mod.
+
 [2020-12-19 Kinithin]
 - Switched from using cards to using tiles for the industry tiles. This makes it more obvious that there are multiple of some tiles.
 - Players no longer have an infinite supply of links.

@@ -787,11 +787,14 @@ end
 -- This addresses the problem.
 
 function App:hand_fixer()
-   for i, player in ipairs(get_seated_players()) do
-      for i, card in ipairs(player.getHandObjects()) do
-         local pos = card.getPosition()
-         pos.z = pos.z + 0.01
-         card.setPosition(pos)
+   for color_name in pairs(self.objects.players) do
+      local player = Player[color_name]
+      if player.seated then
+         for i, card in ipairs(player.getHandObjects()) do
+            local pos = card.getPosition()
+            pos.z = pos.z + 0.01
+            card.setPosition(pos)
+         end
       end
    end
 end
