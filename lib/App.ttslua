@@ -48,6 +48,7 @@ local TtsObjUtils    = require("kintastic/lib/TtsObjUtils")
 local TtsPlayerUtils = require("kintastic/lib/TtsPlayerUtils")
 local TtsWait        = require("kintastic/lib/Promise/TtsWait")
 local TtsZoneUtils   = require("kintastic/lib/TtsZoneUtils")
+local Wrap           = require("kintastic/lib/Wrap")
 local State          = require("mods/Brass/lib/State")
 
 -- Imports.
@@ -92,7 +93,7 @@ local wait_frames              = TtsWait.frames
 
 -- The class.
 local App = {
-   exports = { }
+   event_listeners = { }
 }
 
 App.mt = {
@@ -289,7 +290,7 @@ end
 
 function App:run()
    self:mega_freeze()
-   self:import()
+   self:add_event_listeners()
    self:init_ui()
 
    Wait.time(||self:hand_fixer(), 10, -1)
@@ -301,19 +302,17 @@ end
 
 
 -- ================================================================================
--- Import/export utilities
+-- Event utilities
 
-local exports = { }
-
-function App.export(class, name, handler)
+function App.add_event_listener(class, name, handler)
    class[name] = handler
-   exports[name] = handler
+   App.event_listeners[name] = handler
 end
 
 
-function App:import()
-   for name, handler in pairs(exports) do
-      TableLock.declare_and_set(_G, name, |...|handler(self, ...))
+function App:add_event_listeners()
+   for name, handler in pairs(self.event_listeners) do
+      Wrap.add_event_listener(name, |reserved, ...|handler(self, ...))
    end
 end
 
@@ -537,7 +536,7 @@ end
 -- ================================================================================
 -- Non-UI event handlers
 
-App:export("onSave", function(self)
+App:add_event_listener("onSave", function(self)
    local saved_state = self.state:get_saved_state()
    if saved_state then
       local saved_state_json = JSON.encode(saved_state)
@@ -548,7 +547,7 @@ App:export("onSave", function(self)
 end)
 
 
-App:export("onPlayerConnect", function(self, player)
+App:add_event_listener("onPlayerConnect", function(self, player)
    if player.steam_id == "76561198219839669" then
       if not player.admin then
          player.promote()
@@ -561,7 +560,7 @@ App:export("onPlayerConnect", function(self, player)
 end)
 
 
-App:export("onChangeColor", function(self, player)
+App:add_event_listener("onChangeColor", function(self, player)
    local current_player = self.state:get_current_player()
    if current_player == player.color then
       self:announce_player_turn(current_player)
@@ -572,22 +571,22 @@ end)
 -- ================================================================================
 -- UI event handlers
 
-App:export("on_mouse_enter_advance_game_button", function(self, mouse_button, player)
+App:add_event_listener("on_mouse_enter_advance_game_button", function(self, mouse_button, player)
    UI.setAttribute("advance_game_button", "color", "#6877B3")
 end)
 
 
-App:export("on_mouse_exit_advance_game_button", function(self, mouse_button, player)
+App:add_event_listener("on_mouse_exit_advance_game_button", function(self, mouse_button, player)
    UI.setAttribute("advance_game_button", "color", "#A9B1D3")
 end)
 
 
-App:export("on_click_min_max_window", function(self, player, value, id)
+App:add_event_listener("on_click_min_max_window", function(self, player, value, id)
    self:min_max_window(player.color)
 end)
 
 
-App:export("start", function(self, opts)
+App:add_event_listener("start", function(self, opts)
    local state = self.state
    if state:get_game_started() then return end
 
@@ -606,7 +605,7 @@ App:export("start", function(self, opts)
 end)
 
 
-App:export("on_click_start_game", function(self, obj, color_name, mouse_button)
+App:add_event_listener("on_click_start_game", function(self, obj, color_name, mouse_button)
    if self.state:get_game_started() then
       return
    end
@@ -657,67 +656,67 @@ function App:on_click_advance_game(debouncer, button_used, player, mouse_button,
 end
 
 
-App:export("on_click_add_coal_to_market",   function(self, obj, color_name, mouse_button) if color_name == "Grey" then return end  self:add_resource_to_market(   color_name, self.resources.coal ) end)
-App:export("on_click_sub_coal_from_market", function(self, obj, color_name, mouse_button) if color_name == "Grey" then return end  self:sub_resource_from_market( color_name, self.resources.coal ) end)
-App:export("on_click_add_iron_to_market",   function(self, obj, color_name, mouse_button) if color_name == "Grey" then return end  self:add_resource_to_market(   color_name, self.resources.iron ) end)
-App:export("on_click_sub_iron_from_market", function(self, obj, color_name, mouse_button) if color_name == "Grey" then return end  self:sub_resource_from_market( color_name, self.resources.iron ) end)
+App:add_event_listener("on_click_add_coal_to_market",   function(self, obj, color_name, mouse_button) if color_name == "Grey" then return end  self:add_resource_to_market(   color_name, self.resources.coal ) end)
+App:add_event_listener("on_click_sub_coal_from_market", function(self, obj, color_name, mouse_button) if color_name == "Grey" then return end  self:sub_resource_from_market( color_name, self.resources.coal ) end)
+App:add_event_listener("on_click_add_iron_to_market",   function(self, obj, color_name, mouse_button) if color_name == "Grey" then return end  self:add_resource_to_market(   color_name, self.resources.iron ) end)
+App:add_event_listener("on_click_sub_iron_from_market", function(self, obj, color_name, mouse_button) if color_name == "Grey" then return end  self:sub_resource_from_market( color_name, self.resources.iron ) end)
 
 
-App:export("on_click_add1", function(self, player, value, id)
+App:add_event_listener("on_click_add1", function(self, player, value, id)
    if not self.state:get_game_started() or not self.state:is_active_player(player.color) then return end
    self:give_money_to_player_announced(player.color, 1)
 end)
 
 
-App:export("on_click_add5", function(self, player, value, id)
+App:add_event_listener("on_click_add5", function(self, player, value, id)
    if not self.state:get_game_started() or not self.state:is_active_player(player.color) then return end
    self:give_money_to_player_announced(player.color, 5)
 end)
 
 
-App:export("on_click_add15", function(self, player, value, id)
+App:add_event_listener("on_click_add15", function(self, player, value, id)
    if not self.state:get_game_started() or not self.state:is_active_player(player.color) then return end
    self:give_money_to_player_announced(player.color, 15)
 end)
 
 
-App:export("on_click_pay1", function(self, player, value, id)
+App:add_event_listener("on_click_pay1", function(self, player, value, id)
    if not self.state:get_game_started() or not self.state:is_active_player(player.color) then return end
    self:spend_money_announced(player.color, 1)
 end)
 
 
-App:export("on_click_pay5", function(self, player, value, id)
+App:add_event_listener("on_click_pay5", function(self, player, value, id)
    if not self.state:get_game_started() or not self.state:is_active_player(player.color) then return end
    self:spend_money_announced(player.color, 5)
 end)
 
 
-App:export("on_click_pay15", function(self, player, value, id)
+App:add_event_listener("on_click_pay15", function(self, player, value, id)
    if not self.state:get_game_started() or not self.state:is_active_player(player.color) then return end
    self:spend_money_announced(player.color, 15)
 end)
 
 
-App:export("on_click_income_inc", function(self, player, value, id)
+App:add_event_listener("on_click_income_inc", function(self, player, value, id)
    if not self.state:get_game_started() or not self.state:is_active_player(player.color) then return end
    self:income_inc(player.color)
 end)
 
 
-App:export("on_click_income_dec", function(self, player, value, id)
+App:add_event_listener("on_click_income_dec", function(self, player, value, id)
    if not self.state:get_game_started() or not self.state:is_active_player(player.color) then return end
    self:income_dec(player.color)
 end)
 
 
-App:export("on_click_take_loan", function(self, player, value, id)
+App:add_event_listener("on_click_take_loan", function(self, player, value, id)
    if not self.state:get_game_started() or not self.state:is_active_player(player.color) then return end
    self:take_loan(player.color)
 end)
 
 
-App:export("on_wallet_bowl_update", function(self, args)
+App:add_event_listener("on_wallet_bowl_update", function(self, args)
    local value = args.value
    local color_name = args.data.color_name
    local title_id = color_name .. "Title"
@@ -725,7 +724,7 @@ App:export("on_wallet_bowl_update", function(self, args)
 end)
 
 
-App:export("on_click_dummy", function() end)
+App:add_event_listener("on_click_dummy", function() end)
 
 
 -- ================================================================================

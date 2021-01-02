@@ -278,7 +278,7 @@ end
 -- ================================================================================
 -- UI event handlers
 
-LancashireApp:export("on_click_sell_to_distant_market", function(self, obj, player_color, mouse_button)
+LancashireApp:add_event_listener("on_click_sell_to_distant_market", function(self, obj, player_color, mouse_button)
    if not self.state:get_game_started() or not self.state:is_active_player(player_color) then return end
    self:sell_to_distant_market(player_color)
 end)
