@@ -294,25 +294,28 @@ function LancashireApp:do_start_round()
       SUPER.do_start_round(self)
       :next(
          function()
-            if state:get_current_phase() == App.Phases.RAIL_ERA_ROUND
-            and state:get_current_round() == state:get_num_rounds() - 4
-            then
-               local rotation = Vector(0, 180, 180)
+            if state:get_current_phase() == App.Phases.RAIL_ERA_ROUND then
+               local num_rounds_left = state:get_num_rounds() - state:get_current_round() + 1
+               if num_rounds_left == 5 then
+                  local rotation = Vector(0, 180, 180)
 
-               local zone = objects.play_deck_zone
-               for obj in ivalues(zone.getObjects()) do
-                  if obj.name == "Deck" or obj.name == "Card" then
-                     obj.setRotation(rotation)
+                  local zone = objects.play_deck_zone
+                  for obj in ivalues(zone.getObjects()) do
+                     if obj.name == "Deck" or obj.name == "Card" then
+                        obj.setRotation(rotation)
+                     end
                   end
+
+                  objects.deck_splitter.destruct()
+                  objects.deck_splitter = nil
+
+                  broadcastToAll("This is the final round in which you can obtain a loan.", Color(0xF3/255, 0xB2/255, 0x1C/255))
+               elseif num_rounds_left == 4 then
+                  UI.setAttribute("PurpleLoanBttn", "interactable", "false")  UI.setAttribute("PurpleLoanImg", "visibility", "-")
+                  UI.setAttribute("TealLoanBttn",   "interactable", "false")  UI.setAttribute("TealLoanImg",   "visibility", "-")
+                  UI.setAttribute("OrangeLoanBttn", "interactable", "false")  UI.setAttribute("OrangeLoanImg", "visibility", "-")
+                  UI.setAttribute("YellowLoanBttn", "interactable", "false")  UI.setAttribute("YellowLoanImg", "visibility", "-")
                end
-
-               objects.deck_splitter.destruct()
-               objects.deck_splitter = nil
-
-               UI.setAttribute("PurpleLoanBttn", "interactable", "false")  UI.setAttribute("PurpleLoanImg", "visibility", "-")
-               UI.setAttribute("TealLoanBttn",   "interactable", "false")  UI.setAttribute("TealLoanImg",   "visibility", "-")
-               UI.setAttribute("OrangeLoanBttn", "interactable", "false")  UI.setAttribute("OrangeLoanImg", "visibility", "-")
-               UI.setAttribute("YellowLoanBttn", "interactable", "false")  UI.setAttribute("YellowLoanImg", "visibility", "-")
             end
          end
       )

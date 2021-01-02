@@ -1,6 +1,7 @@
 Title: Change Log
 
 [~~~~-~~-~~ Kinithin]
+- The game was disabling the loan button one round too soon.
 - The game-advancing button now shows as disabled when the game is busy and when in cool-down mode.
 - Sound is cut if the game-advancing button is pressed while sound is still playing.
 
