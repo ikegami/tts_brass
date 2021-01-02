@@ -61,9 +61,9 @@ local rconst                   = Const.rconst
 local debounce                 = Debouncer.debounce
 local pick                     = DictUtils.pick
 local get_keys                 = DictUtils.get_keys
-local ipairs_desc              = Iters.ipairs_desc
+local dipairs                  = Iters.dipairs
 local ivalues                  = Iters.ivalues
-local ivalues_desc             = Iters.ivalues_desc
+local divalues                 = Iters.divalues
 local keys                     = Iters.keys
 local values                   = Iters.values
 local lock                     = TableLock.lock
@@ -373,8 +373,6 @@ end
 
 
 function App:init_ui()
-   self.advance_game_button_disabled = false
-
    self.ui_state = { }   -- Used by update_ui to control effects.
 
    self:create_buttons()
@@ -385,7 +383,14 @@ function App:init_ui()
          UI.setAttribute("advance_game_button", "onClick", name)
       end,
       |...|self:on_click_advance_game(...),
-      { cool_down = 1.5 }
+      {
+         on_disable = function()
+            UI.setAttribute("advance_game_button", "interactable", false)
+         end,
+         on_enable = function()
+            UI.setAttribute("advance_game_button", "interactable", true)
+         end
+      }
    )
 
    -- Setup hook to update amount in control panel.
@@ -474,7 +479,7 @@ local update_ui_dispatch_table = {
    [ App.Phases.GAME_ENDED ] = function(state)
       return
          state:get_game_result(),
-         "Game Over",
+         "Game Over!",
          true
    end,
 }
@@ -524,9 +529,6 @@ function App:update_ui()
    UI.setAttribute("advance_game_button_teal_box",   "active", authorized == "Teal")
    UI.setAttribute("advance_game_button_yellow_box", "active", authorized == "Yellow")
 
-   local debouncer = self.advance_game_button
-   debouncer:set_opt_cool_down( state:get_opt_cool_down() or 1.5 )
-
    if announce then
       self:announce_admin_turn()
    end
@@ -571,16 +573,6 @@ end)
 -- ================================================================================
 -- UI event handlers
 
-App:add_event_listener("on_mouse_enter_advance_game_button", function(self, mouse_button, player)
-   UI.setAttribute("advance_game_button", "color", "#6877B3")
-end)
-
-
-App:add_event_listener("on_mouse_exit_advance_game_button", function(self, mouse_button, player)
-   UI.setAttribute("advance_game_button", "color", "#A9B1D3")
-end)
-
-
 App:add_event_listener("on_click_min_max_window", function(self, player, value, id)
    self:min_max_window(player.color)
 end)
@@ -616,11 +608,6 @@ end)
 
 
 function App:on_click_advance_game(debouncer, button_used, player, mouse_button, button_id)
-   -- Disable the button until everything is done.
-   if self.advance_game_button_disabled then
-      return
-   end
-
    if player.color == "Grey" then
       return
    end
@@ -644,12 +631,14 @@ function App:on_click_advance_game(debouncer, button_used, player, mouse_button,
 
    button_used()
 
-   self.advance_game_button_disabled = true
+   self.advance_game_button:disable()
 
    self:advance_game()
    :finally(
       function()
-         self.advance_game_button_disabled = false
+         if self.state:get_current_phase() ~= App.Phases.GAME_ENDED then
+            self.advance_game_button:enable()
+         end
       end
    )
    :done()
@@ -755,6 +744,9 @@ function App:cancel_announcement()
    if announcement_stopper then
       announcement_stopper()
       announcement_stopper = nil
+
+      -- Silence
+      self.objects.sound_effects.AssetBundle.playTriggerEffect(0)
    end
 end
 
@@ -772,10 +764,13 @@ function App:announce_admin_turn()
 
    local current_phase = self.state:get_current_phase()
    if current_phase < App.Phases.INTER_ERA then
+      -- Tram Bell
       self.objects.sound_effects.AssetBundle.playTriggerEffect(1)
    elseif current_phase < App.Phases.GAME_ENDED then
+      -- Steam Whistle
       self.objects.sound_effects.AssetBundle.playTriggerEffect(2)
    else
+      -- Toot Toot
       self.objects.sound_effects.AssetBundle.playTriggerEffect(3)
    end
 end
@@ -921,6 +916,7 @@ end
 
 function App:end_game()
    self.state:set_current_phase(App.Phases.GAME_ENDED)
+   self.advance_game_button:disable()
 end
 
 
@@ -1085,7 +1081,7 @@ function App:end_era()
 
 
    local promise = Promise:resolve()
-   for score_info_rec in ivalues_desc(score_info_recs) do
+   for score_info_rec in divalues(score_info_recs) do
       local color_name = score_info_rec.color_name
       local player = self.objects.players[color_name]
       local score_marker = player.score_marker
@@ -1659,7 +1655,7 @@ end
 -- Coal and iron market manipulations
 
 function App:add_resource_to_market(color_name, resource)
-   for i, zone in ipairs_desc(resource.market_zones) do
+   for i, zone in dipairs(resource.market_zones) do
       local has_resource = false
       for obj in ivalues(zone.getObjects()) do
          if obj.getGMNotes() == resource.resource_name then

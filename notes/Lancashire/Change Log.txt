@@ -1,5 +1,9 @@
 Title: Change Log
 
+[~~~~-~~-~~ Kinithin]
+- The game-advancing button now shows as disabled when the game is busy and when in cool-down mode.
+- Sound is cut if the game-advancing button is pressed while sound is still playing.
+
 [2020-12-21 Kinithin]
 - Fixed a (basically harmless) error that would occur every 10s a player had a color other than those used by the mod.
 

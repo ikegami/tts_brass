@@ -11,7 +11,7 @@
    id="advance_game_button"
    width="300" height="40" rectAlignment="UpperLeft" offsetXY="100 -5"
    allowDragging="true" returnToOriginalPositionWhenReleased="false"
-   color="#A9B1D3"
+   colors="#A9B1D3|#6877B3|#6877B3|#666666"
    onClick="on_click_advance_game"
    onMouseEnter="on_mouse_enter_advance_game_button"
    onMouseExit="on_mouse_exit_advance_game_button"
