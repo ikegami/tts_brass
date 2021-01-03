@@ -42,6 +42,14 @@ BirminghamApp.mt = {
 
 
 -- ================================================================================
+-- Constructor
+
+function BirminghamApp.new(class, mod_name, saved_state_json)
+   return SUPER.new(class, "Lancashire", saved_state_json)
+end
+
+
+-- ================================================================================
 -- Object initialization
 
 function BirminghamApp:init(saved_state_json)

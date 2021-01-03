@@ -1,6 +1,5 @@
-Title: Change Log
-
 [~~~~-~~-~~ Kinithin]
+- The game now checks for updates and advises the players where to get the newest version.
 - The game-advancing button now shows as disabled when the game is busy and when in cool-down mode.
 - Sound is cut if the game-advancing button is pressed while sound is still playing.
 

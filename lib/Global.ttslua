@@ -23,6 +23,8 @@ TableLock.declare_and_set(_G, "onLoad",
          error("Invalid value for \"game\".")
       end
 
-      App:new(saved_state_json):run()
+      local app = App:new(saved_state_json)
+      TableLock.declare_and_set(_G, "app", app)
+      app:run()
    end
 )

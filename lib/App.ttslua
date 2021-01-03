@@ -39,6 +39,7 @@ local Debouncer      = require("kintastic/lib/Debouncer")
 local DictUtils      = require("kintastic/lib/DictUtils")
 local Iters          = require("kintastic/lib/Iters")
 local Promise        = require("kintastic/lib/Promise")
+local StrUtils       = require("kintastic/lib/StrUtils")
 local TableLock      = require("kintastic/lib/TableLock")
 local TableUtils     = require("kintastic/lib/TableUtils")
 local TtsBase        = require("kintastic/lib/Promise/TtsBase")
@@ -48,11 +49,13 @@ local TtsObjUtils    = require("kintastic/lib/TtsObjUtils")
 local TtsPlayerUtils = require("kintastic/lib/TtsPlayerUtils")
 local TtsWait        = require("kintastic/lib/Promise/TtsWait")
 local TtsZoneUtils   = require("kintastic/lib/TtsZoneUtils")
+local TtsWebRequest  = require("kintastic/lib/Promise/TtsWebRequest")
 local Wrap           = require("kintastic/lib/Wrap")
 local State          = require("mods/Brass/lib/State")
 
 -- Imports.
 local filter                   = ArrayUtils.filter
+local first                    = ArrayUtils.first
 local format_item_list         = ArrayUtils.format_item_list
 local make_set                 = ArrayUtils.make_set
 local shuffle                  = ArrayUtils.shuffle
@@ -66,6 +69,7 @@ local ivalues                  = Iters.ivalues
 local divalues                 = Iters.divalues
 local keys                     = Iters.keys
 local values                   = Iters.values
+local split                    = StrUtils.split
 local lock                     = TableLock.lock
 local rlock                    = TableLock.rlock
 local map                      = TableUtils.map
@@ -104,9 +108,10 @@ App.mt = {
 -- ================================================================================
 -- Constructor
 
-function App.new(class, saved_state_json)
+function App.new(class, mod_name, saved_state_json)
    local self = setmetatable({}, class.mt)
    self.class = class
+   self.mod_name = mod_name
    self:init(saved_state_json)
    return self
 end
@@ -292,6 +297,10 @@ function App:run()
    self:mega_freeze()
    self:add_event_listeners()
    self:init_ui()
+
+   self:check_if_latest()
+   :catch(function(reason) log(reason) end)
+   :done()
 
    Wait.time(||self:hand_fixer(), 10, -1)
 
@@ -2271,6 +2280,97 @@ function App:adjust_link_tile_values()
    for link_name in keys(self.objects.links) do
       self:adjust_link_tile_value(link_name)
    end
+end
+
+
+-- ================================================================================
+-- Version
+
+function App:get_version_from_log(change_log)
+   local s, e = string.find(change_log, "^%[.-%]")
+   if not s then
+      return nil
+   end
+
+   return string.sub(change_log, s, e)
+end
+
+
+function App:get_version()
+   return Promise:new(
+      function(resolve, reject)
+         local change_log_tab = first(Notes.getNotebookTabs(), |i,tab|tab.title == "Change Log")
+         if not change_log_tab then
+            reject("Can't find Change Log.")
+            return
+         end
+
+         local change_log = change_log_tab.body
+         local version = self:get_version_from_log(change_log)
+         if not version then
+            reject("Can't determine version from Change Log.")
+            return
+         end
+
+         resolve(version)
+      end
+   )
+end
+
+
+function App:get_latest_change_log()
+   local url = "https://raw.githubusercontent.com/ikegami/tts_brass/latest/notes/" .. self.mod_name .. "/Change%20Log.txt"
+   return TtsWebRequest.get(url)
+end
+
+
+function App:check_if_latest()
+   return
+      Promise:all({
+         self:get_version(),
+         self:get_latest_change_log()
+      })
+      :next(
+         function(result)
+            local this_version, change_log = table.unpack(result)
+
+            local latest_version = app:get_version_from_log(change_log)
+            if not latest_version then
+               error("Can't determine version from latest Change Log.")
+            end
+
+            if this_version == latest_version then
+               return true
+            end
+
+            local warning_color = Color(0xF3/255, 0xB2/255, 0x1C/255)
+            local msg = "This version of the mod is outdated.\n"
+            msg = msg .. "You can obtained the latest version from http://kinithin.ca/tts/brass\n"
+            printToAll(msg .. "See the log tab for more details.", warning_color)
+
+            msg = msg .. "Here are the changes since the this version:\n"
+            local lines = split(change_log, "\n", true, true)
+            for i, line in ipairs(lines) do
+               if line == this_version then
+                  break
+               end
+
+               msg = msg .. "\n" .. line
+            end
+
+            log(msg)
+
+            Notes.setNotes(
+               "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" ..
+               "See notebook for information.\n" ..
+               "\n" ..
+               "[FF0000]Newer version available at\n" ..
+               "http://kinithin.ca/tts/brass[FFFFFF]"  -- ~~~
+            )
+
+            return false
+         end
+      )
 end
 
 
