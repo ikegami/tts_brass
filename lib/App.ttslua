@@ -47,6 +47,7 @@ local TtsMsgUtils    = require("kintastic/lib/TtsMsgUtils")
 local TtsObject      = require("kintastic/lib/Promise/TtsObject")
 local TtsObjUtils    = require("kintastic/lib/TtsObjUtils")
 local TtsPlayerUtils = require("kintastic/lib/TtsPlayerUtils")
+local TtsSaveEvent   = require("kintastic/lib/TtsSaveEvent")
 local TtsWait        = require("kintastic/lib/Promise/TtsWait")
 local TtsZoneUtils   = require("kintastic/lib/TtsZoneUtils")
 local TtsWebRequest  = require("kintastic/lib/Promise/TtsWebRequest")
@@ -548,12 +549,9 @@ end
 -- Non-UI event handlers
 
 App:add_event_listener("onSave", function(self)
-   local saved_state = self.state:get_saved_state()
+   local saved_state = self.state:serialize()
    if saved_state then
-      local saved_state_json = JSON.encode(saved_state)
-      return saved_state_json
-   else
-      return ""
+      SELF.script_state = JSON.encode(saved_state)
    end
 end)
 
@@ -2365,7 +2363,7 @@ function App:check_if_latest()
                "See notebook for information.\n" ..
                "\n" ..
                "[FF0000]Newer version available at\n" ..
-               "http://kinithin.ca/tts/brass[FFFFFF]"  -- ~~~
+               "http://kinithin.ca/tts/brass[FFFFFF]"
             )
 
             return false

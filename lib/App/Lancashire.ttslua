@@ -55,7 +55,7 @@ LancashireApp.mt = {
 -- ================================================================================
 -- Constructor
 
-function LancashireApp.new(class, mod_name, saved_state_json)
+function LancashireApp.new(class, saved_state_json)
    return SUPER.new(class, "Lancashire", saved_state_json)
 end
 

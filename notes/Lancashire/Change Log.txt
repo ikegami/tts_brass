@@ -1,3 +1,6 @@
+[~~~~-~~-~~ Kinithin]
+- Restored the ability to save (and rewind) games, which was broken by the previous release.
+
 [2021-01-03 Kinithin]
 - The game was disabling the loan button one round too soon.
 - The game now checks for updates and advises the players where to get the newest version.

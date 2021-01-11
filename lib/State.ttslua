@@ -126,9 +126,9 @@ end
 
 
 -- ================================================================================
--- Public instance method State:get_saved_state
+-- Public instance method State:serialize
 
-function State:get_saved_state()
+function State:serialize()
    if self.derived.game_started then
       return {
          state = self.state,
