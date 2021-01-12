@@ -370,6 +370,7 @@ function App:mega_freeze()
    }) do
       obj.interactable = false
       obj.tooltip      = false
+      obj.setLock(true)
    end
 
    -- Make the sound cubes incorporeal.
