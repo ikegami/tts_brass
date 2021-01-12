@@ -14,6 +14,11 @@ if devel then require("kintastic/lib/Devel").import_event_handlers() end
 
 TableLock.declare_and_set(_G, "onLoad",
    function(saved_state_json)
+      -- Loading a module doesn't clear this!!!
+      -- https://forums.tabletopsimulator.com/showthread.php?9344-BUG-SCRIPT-Global-script_state-survives-load&p=29892
+      -- We'll clear it ourselves to avoid having other anmodule corrupt ours.
+      Global.script_state = ""
+
       local App
       if game == "Lancashire" then
          App = require("mods/Brass/lib/App/Lancashire")
