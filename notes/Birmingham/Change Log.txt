@@ -1,5 +1,8 @@
 [~~~~-~~-~~ Kinithin]
-- Restored the ability to save (and rewind) games, which was broken by the previous release.
+- Restored the ability to save (and rewind) games. This was broken by the previous release.
+- Updated to the latest rule book.
+- Added a copy of the reference card.
+- Sir Henry Bessemer no longer leans so far back.
 
 [2021-01-03 Kinithin]
 - The game now checks for updates and advises the players where to get the newest version.

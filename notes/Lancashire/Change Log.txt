@@ -1,5 +1,7 @@
 [~~~~-~~-~~ Kinithin]
-- Restored the ability to save (and rewind) games, which was broken by the previous release.
+- Restored the ability to save (and rewind) games. This was broken by the previous release.
+- Updated to the latest rule book.
+- Sir Henry Bessemer no longer leans so far back.
 
 [2021-01-03 Kinithin]
 - The game was disabling the loan button one round too soon.
