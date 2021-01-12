@@ -9,7 +9,7 @@ Instructions:
 - Only use the “+#” buttons when receiving money. Don’t use them when spending.
 - Only use the “-#” buttons when spending money.
 - When taking the Scout action, simply place the three cards in a discard pile.
-- Wild card should be placed in the discard pile just like as others.
+- Wild cards should be placed in the discard pile as any other.
 
 The script is largely stateless. This means you can change/correct just about everything in the game, including:
 - Available money
