@@ -5,9 +5,11 @@ The game gives chances to review and make correction at critical times:
 - Scoring only happens when “Score the Canal Era” is clicked.
 - Clearing the board of links and industries only happens when “Start the Rail Era” is clicked.
 
-When taking the Scout action, simply place the three cards in a discard pile.
-
-Wild card should be placed in the discard pile just like as others.
+Instructions:
+- Only use the “+#” buttons when receiving money. Don’t use them when spending.
+- Only use the “-#” buttons when spending money.
+- When taking the Scout action, simply place the three cards in a discard pile.
+- Wild card should be placed in the discard pile just like as others.
 
 The script is largely stateless. This means you can change/correct just about everything in the game, including:
 - Available money

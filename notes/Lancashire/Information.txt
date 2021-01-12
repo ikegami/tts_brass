@@ -5,7 +5,10 @@ The game gives chances to review and make correction at critical times:
 - Scoring only happens when “Score the Canal Era” is clicked.
 - Clearing the board of links and industries only happens when “Start the Rail Era” is clicked.
 
-When taking the Double Build action, simply place a card in each discard pile as normal.
+Instructions:
+- Only use the “+#” buttons when receiving money. Don’t use them when spending.
+- Only use the “-#” buttons when spending money.
+- When taking the Double Build action, simply place a card in each discard pile as normal.
 
 The script is largely stateless. This means you can change/correct just about everything in the game, including:
 - Available money
@@ -16,11 +19,11 @@ The script is largely stateless. This means you can change/correct just about ev
 - Coal and iron markets
 - Distant market tiles
 
-You can even change the turn order token. If this causes a player to be placed before the current player, perform the turns as it there was no scripting until it reaches the indicated player's turn.
+You can even change the turn order token. If this causes a player to be placed before the current player, perform the turns as it there was no scripting until it reaches the indicated player’s turn.
 
 The script supports saving and reverting time.
 
-The script is very tolerant of people dropping. The host and promoted players can click the game-advancing button even when it's not their turn.
+The script is very tolerant of people dropping. The host and promoted players can click the game-advancing button even when it’s not their turn.
 
 The value of links are updated with every click of the button.
 
