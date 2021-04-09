@@ -443,24 +443,16 @@ end
 function LancashireApp:setup_deck_rail_era()
    local objects = self.objects
    local splitter = objects.deck_splitter
-   local zone = objects.play_deck_zone
    local num_players = self.state:get_num_players()
-
-   local pos
 
    return
       SUPER.setup_deck_rail_era(self)
       :next(
          function(deck)
-            pos = get_bot_pos(deck)
-            deck.setLock(true)
-            return move_atop_smooth(deck, zone)
-         end
-      )
-      :next(
-         function(deck)
             local splitter_height = get_abs_height(splitter)
             local deck_height     = get_abs_height(deck)
+
+            local pos = get_bot_pos(deck)
 
             local splitter_pos = pos:copy()
             splitter_pos.y = splitter_pos.y + 0.2 * 2*num_players + 0.2 + splitter_height/2
@@ -470,39 +462,47 @@ function LancashireApp:setup_deck_rail_era()
 
             local splitter_rot = splitter.getRotation()
             splitter_rot.z = ( splitter_rot.z + 180 ) % 360
-            splitter.setLock(true)
+
+            deck.setLock(true)
             return
-               set_transform_smooth(splitter, {
-                  position = splitter_pos,
-                  rotation = splitter_rot,
-               })
+               set_position_smooth(deck, deck_pos)
                :next(
-                  function(splitter)
-                     local promises = { }
-
-                     for i = 1, 2*num_players do
-                        pos.y = pos.y + 0.2
-                        table.insert(promises,
-                           take_object(deck, {
-                              position = pos,
-                              rotation = Vector(0, 90, 180),
-                           })
-                        )
-                     end
-
+                  function(deck)
+                     splitter.setLock(true)
                      return
-                        Promise:all_settled(promises)
-                        :next(Promise.all_settled_error_logger)
-                  end
-               )
-               :next(
-                  function()
-                     splitter.setLock(false)
-                     deck.setLock(false)
+                     set_transform_smooth(splitter, {
+                        position = splitter_pos,
+                        rotation = splitter_rot,
+                     })
+                     :next(
+                        function(splitter)
+                           local promises = { }
 
-                     return
-                        wait_frames(1)
-                        :next(||wait_condition(||splitter.resting and deck.resting, deck, 3, "Timeout setting up deck."))
+                           for i = 1, 2*num_players do
+                              pos.y = pos.y + 0.2
+                              table.insert(promises,
+                                 take_object(deck, {
+                                    position = pos,
+                                    rotation = Vector(0, 90, 180),
+                                 })
+                              )
+                           end
+
+                           return
+                              Promise:all_settled(promises)
+                              :next(Promise.all_settled_error_logger)
+                        end
+                     )
+                     :next(
+                        function()
+                           splitter.setLock(false)
+                           deck.setLock(false)
+
+                           return
+                              wait_frames(1)
+                              :next(||wait_condition(||splitter.resting and deck.resting, deck, 3, "Timeout setting up deck."))
+                        end
+                     )
                   end
                )
          end

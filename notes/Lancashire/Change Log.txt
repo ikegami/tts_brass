@@ -1,3 +1,7 @@
+[2021-04-09 Kinithin]
+- Fixed a bug preventing the rail era from being entered with four players.
+- Silenced the harmless "Undeclared write to spawned_object" warning.
+
 [2021-01-12 Kinithin]
 - Restored the ability to save (and rewind) games. This was broken by the previous release.
 - Worked around a bug in TTS that could corrupt this module’s state.
