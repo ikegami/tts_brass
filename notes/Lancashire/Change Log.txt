@@ -1,3 +1,6 @@
+[2021-05-03 Kinithin]
+- New hosting for wooden cube resources.
+
 [2021-04-09 Kinithin]
 - Fixed a bug preventing the rail era from being entered with four players.
 - Silenced the harmless "Undeclared write to spawned_object" warning.
