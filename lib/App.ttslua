@@ -124,11 +124,11 @@ end
 function App:init(saved_state_json)
    -- self.initial_funds, self.loan_amount and self.money_value are populated by subclasses.
 
-   self:init_state(saved_state_json)
-   self:init_industry_tile_data()   -- self.industry_tile_data populated by subclass.
-   self:init_objects()
-   self:init_resources()
-   self:init_locations_and_links()
+   self:init_state(saved_state_json)   -- Populates self.state.
+   self:init_industry_tile_data()      -- Populates self.industry_tile_data.
+   self:init_locations_and_links()     -- Populates self.locations and self.links, self.bonuses_by_external_location, self.loc_names_by_link_name and self.link_names_by_loc_name.
+   self:init_objects()                 -- Populates self.objects.
+   self:init_resources()               -- Populates self.resources and self.resource_id_by_name.
 end
 
 
@@ -143,9 +143,61 @@ function App:init_state(saved_state_json)
 end
 
 
+function App:init_locations_and_links()
+   local objects = self.objects
+
+   -- self.locations, self.links and self.bonuses_by_external_location is populated by subclasses.
+
+   local loc_names_by_link_name = { }
+   local link_names_by_loc_name = { }
+
+   for loc_name in keys(self.locations) do
+      link_names_by_loc_name[loc_name] = { }
+   end
+
+   for loc_name in keys(self.bonuses_by_external_location) do
+      link_names_by_loc_name[loc_name] = { }
+   end
+
+   for link_name in keys(self.links) do
+      loc_names_by_link_name[link_name] = { }
+      for loc_name in link_name:gsub(" %- ", "|"):gmatch("([^|]+)") do
+         if self.bonuses_by_external_location[loc_name] or self.locations[loc_name] then
+            table.insert(loc_names_by_link_name[link_name], loc_name)
+            table.insert(link_names_by_loc_name[loc_name], link_name)
+         else
+            broadcast_internal_error("Link " .. link_name .. " references unknown location " .. loc_name)
+         end
+      end
+   end
+
+   self.loc_names_by_link_name = rconst(rlock(loc_names_by_link_name))
+   self.link_names_by_loc_name = rconst(rlock(link_names_by_loc_name))
+
+   --
+
+   local neighbours_by_loc_name = { }
+
+   for loc_name in keys(self.locations) do
+      neighbours_by_loc_name[loc_name] = { }
+      for link_name in ivalues(link_names_by_loc_name[loc_name]) do
+         for neighbour_name in ivalues(loc_names_by_link_name[link_name]) do
+            if loc_name ~= neighbour_name then
+               table.insert(neighbours_by_loc_name[loc_name], neighbour_name)
+            end
+         end
+      end
+   end
+
+   self.neighbours_by_loc_name = rconst(rlock(neighbours_by_loc_name))
+end
+
+
 function App:init_objects()
    local state = self.state
    local num_players = state:get_num_players()
+
+   -- Additional elements are added to self.objects by subclasses.
 
    local guids = {
       game_board = "4ee1f2",
@@ -238,56 +290,6 @@ function App:init_resources()
    end
 
    self.resource_id_by_name = rconst(resource_id_by_name)
-end
-
-
-function App:init_locations_and_links()
-   local objects = self.objects
-
-   -- self.bonuses_by_external_location is populated by subclasses.
-
-   local loc_names_by_link_name = { }
-   local link_names_by_loc_name = { }
-
-   for loc_name in keys(objects.locations) do
-      link_names_by_loc_name[loc_name] = { }
-   end
-
-   for loc_name in keys(self.bonuses_by_external_location) do
-      link_names_by_loc_name[loc_name] = { }
-   end
-
-   for link_name, link in pairs(objects.links) do
-      loc_names_by_link_name[link_name] = { }
-      for loc_name in link_name:gsub(" %- ", "|"):gmatch("([^|]+)") do
-         if self.bonuses_by_external_location[loc_name] or objects.locations[loc_name] then
-            table.insert(loc_names_by_link_name[link_name], loc_name)
-            table.insert(link_names_by_loc_name[loc_name], link_name)
-         else
-            broadcast_internal_error("Link " .. link_name .. " references unknown location " .. loc_name)
-         end
-      end
-   end
-
-   self.loc_names_by_link_name = rconst(rlock(loc_names_by_link_name))
-   self.link_names_by_loc_name = rconst(rlock(link_names_by_loc_name))
-
-   --
-
-   local neighbours_by_loc_name = { }
-
-   for loc_name in keys(objects.locations) do
-      neighbours_by_loc_name[loc_name] = { }
-      for link_name in ivalues(link_names_by_loc_name[loc_name]) do
-         for neighbour_name in ivalues(loc_names_by_link_name[link_name]) do
-            if loc_name ~= neighbour_name then
-               table.insert(neighbours_by_loc_name[loc_name], neighbour_name)
-            end
-         end
-      end
-   end
-
-   self.neighbours_by_loc_name = rconst(rlock(neighbours_by_loc_name))
 end
 
 
@@ -980,8 +982,8 @@ function App:end_era()
 
    self:adjust_link_tile_values()
 
-   for link_name, link in pairs(self.objects.links) do
-      for obj in ivalues(link.getObjects()) do
+   for link_name, link_zone in pairs(self.objects.link_zones) do
+      for obj in ivalues(link_zone.getObjects()) do
          local name, color_name = decolor(obj.getGMNotes())
          if color_name and ( name == "Canal" or name == "Railway" ) then
             link_points_by_color_name[color_name] =
@@ -991,18 +993,16 @@ function App:end_era()
       end
    end
 
-   for location in values(self.objects.locations) do
-      for loc_square in values(location) do
-         local found = false
-         for obj in ivalues(loc_square.getObjects()) do
-            if obj.name == "Card" or obj.name == "Custom_Tile" then
-               local name, color_name = decolor(obj.getGMNotes())
-               local data = self.industry_tile_data[name]
-               if data then
-                  industry_points_by_color_name[color_name] =
-                     industry_points_by_color_name[color_name] +
-                     obj.getRotationValue()
-               end
+   for loc_square in values(self.objects.location_squares) do
+      local found = false
+      for obj in ivalues(loc_square.getObjects()) do
+         if obj.name == "Card" or obj.name == "Custom_Tile" then
+            local name, color_name = decolor(obj.getGMNotes())
+            local data = self.industry_tile_data[name]
+            if data then
+               industry_points_by_color_name[color_name] =
+                  industry_points_by_color_name[color_name] +
+                  obj.getRotationValue()
             end
          end
       end
@@ -1395,8 +1395,8 @@ end
 
 
 function App:remove_link_tiles()
-   for link_name, link in pairs(self.objects.links) do
-      for obj in ivalues(link.getObjects()) do
+   for link_name, link_zone in pairs(self.objects.link_zones) do
+      for obj in ivalues(link_zone.getObjects()) do
          local name = decolor(obj.getGMNotes())
          -- Railways are often used by accident.
          if name == "Canal" or name == "Railway" then
@@ -1408,26 +1408,24 @@ end
 
 
 function App:remove_level1_industries()
-   for location in values(self.objects.locations) do
-      for loc_square in values(location) do
-         local found = false
-         for obj in ivalues(loc_square.getObjects()) do
-            if obj.name == "Card" or obj.name == "Custom_Tile" then
-               local name = decolor(obj.getGMNotes())
-               local data = self.industry_tile_data[name]
-               if data and data.level == 1 then
-                  obj.destruct()
-                  found = true
-               end
+   for loc_square in values(self.objects.location_squares) do
+      local found = false
+      for obj in ivalues(loc_square.getObjects()) do
+         if obj.name == "Card" or obj.name == "Custom_Tile" then
+            local name = decolor(obj.getGMNotes())
+            local data = self.industry_tile_data[name]
+            if data and data.level == 1 then
+               obj.destruct()
+               found = true
             end
          end
+      end
 
-         if found then
-            for obj in ivalues(loc_square.getObjects()) do
-               local name = obj.getGMNotes()
-               if self.resource_id_by_name[name] then
-                  obj.destruct()
-               end
+      if found then
+         for obj in ivalues(loc_square.getObjects()) do
+            local name = obj.getGMNotes()
+            if self.resource_id_by_name[name] then
+               obj.destruct()
             end
          end
       end
@@ -2129,85 +2127,113 @@ end
 -- ================================================================================
 -- Board validation
 
-function App:validate_link(link_name)
-   local link = self.objects.links[link_name]
-   local found = false
-   for obj in ivalues(link.getObjects()) do
-      local name = decolor(obj.getGMNotes())
-      if obj.name == "Custom_Tile" and ( name == "Canal" or name == "Railway" ) then
-         if found then
-            broadcast_error("Unexpected object found for link " .. link_name .. "!")
-            return false
-         end
+function App:validate_links()
+   local objects = self.objects
 
-         found = true
-      elseif obj == self.objects.game_board or obj == self.objects.game_table then
-         -- Ignore the game board and the game table.
+   local game_board = objects.game_board
+   local game_table = objects.game_table
+
+   local canal_era = self.state:get_current_phase() < App.Phases.RAIL_ERA_ROUND
+   local link_era_prop = canal_era and "canal" or "rail"
+   local required_link_obj_type = canal_era and "Canal" or "Railway"
+
+   for link_name, link in pairs(self.links) do
+      local link_zone = objects.link_zones[link_name]
+
+      if link[link_era_prop] then
+         local found = false
+         for obj in ivalues(link_zone.getObjects()) do
+            local name = decolor(obj.getGMNotes())
+            if obj.name == "Custom_Tile" and name == required_link_obj_type then
+               if found then
+                  broadcast_error("Unexpected object found for link " .. link_name .. "!")
+                  break
+               end
+
+               found = true
+            elseif obj == game_board or obj == game_table then
+               -- Ignore the game board and the game table.
+            else
+               broadcast_error("Unexpected object found for link " .. link_name .. "!")
+               break
+            end
+         end
       else
-         broadcast_error("Unexpected object found for link " .. link_name .. "!")
-         return false
+         for obj in ivalues(link_zone.getObjects()) do
+            if obj == game_board or obj == game_table then
+               -- Ignore the game board and the game table.
+            else
+               broadcast_error("Unexpected object found for link " .. link_name .. "!")
+               break
+            end
+         end
       end
    end
 end
 
 
-function App:validate_location(loc_name)
-   if self.bonuses_by_external_location[loc_name] then
-      return true
-   end
+function App:validate_locations(loc_name)
+   local objects = self.objects
 
-   local tiles = { }
+   local game_board = objects.game_board
+   local game_table = objects.game_table
 
-   local location = self.objects.locations[loc_name]
-   for loc_square_name, loc_square in pairs(location) do
-      local found = false
-      for obj in ivalues(loc_square.getObjects()) do
-         local obj_is_tile = false
-         if obj.name == "Card" or obj.name == "Custom_Tile" then
-            local name = decolor(obj.getGMNotes())
-            local tile_data = self.industry_tile_data[name]
-            if tile_data then
-               if found or tiles[obj] then
-                  broadcast_error("Unexpected object found at " .. loc_square_name .. "!")
-                  print_error("Check for stacks and for tiles spanning multiple locations.")
-                  return false
+   for loc_name, location in pairs(self.locations) do
+      if not self.bonuses_by_external_location[loc_name] then
+         local tiles = { }
+
+         for loc_square_name in values(location) do
+            local loc_square = objects.location_squares[loc_square_name]
+
+            local found = false
+            local next_location = false
+            for obj in ivalues(loc_square.getObjects()) do
+               local obj_is_tile = false
+               if obj.name == "Card" or obj.name == "Custom_Tile" then
+                  local name = decolor(obj.getGMNotes())
+                  local tile_data = self.industry_tile_data[name]
+                  if tile_data then
+                     if found or tiles[obj] then
+                        broadcast_error("Unexpected object found at " .. loc_square_name .. "!")
+                        print_error("Check for stacks and for tiles spanning multiple locations.")
+                        next_location = true
+                        break
+                     end
+
+                     found = true        -- Check for multiple tiles at the same location.
+                     tiles[obj] = true   -- Check for tiles that span more than one location.
+
+                     obj_is_tile = true
+                  end
                end
 
-               found = true        -- Check for multiple tiles at the same location.
-               tiles[obj] = true   -- Check for tiles that span more than one location.
-
-               obj_is_tile = true
+               if not obj_is_tile then
+                  if self.resource_id_by_name[ obj.getGMNotes() ] then
+                     -- Ignore Coal, Iron and Beer.
+                  elseif obj == game_board or obj == game_table then
+                     -- Ignore the game board and the game table.
+                  else
+                     broadcast_error("Unexpected object found at " .. loc_square_name .. "!")
+                     print_error("Check for stacks and for tiles spanning multiple locations.")
+                     next_location = true
+                     break
+                  end
+               end
             end
-         end
 
-         if not obj_is_tile then
-            if self.resource_id_by_name[ obj.getGMNotes() ] then
-               -- Ignore Coal, Iron and Beer.
-            elseif obj == self.objects.game_board or obj == self.objects.game_table then
-               -- Ignore the game board and the game table.
-            else
-               broadcast_error("Unexpected object found at " .. loc_square_name .. "!")
-               print_error("Check for stacks and for tiles spanning multiple locations.")
-               return false
+            if next_location then
+               break
             end
          end
       end
    end
-
-   return true
 end
 
 
 function App:validate_board()
-   for link_name in keys(self.objects.links) do
-      self:validate_link(link_name)
-   end
-
-   for loc_name in keys(self.objects.locations) do
-      self:validate_location(loc_name)
-   end
+   self:validate_links()
+   self:validate_locations()
 end
-
 
 
 -- ================================================================================
@@ -2219,9 +2245,10 @@ function App:get_value_of_location_for_link(loc_name)
       return self.bonuses_by_external_location[loc_name]
    end
 
-   local location = self.objects.locations[loc_name]
+   local location = self.locations[loc_name]
    local value = 0
-   for loc_square in values(location) do
+   for loc_square_name in values(location) do
+      local loc_square = self.objects.location_squares[loc_square_name]
       for obj in ivalues(loc_square.getObjects()) do
          if obj.name == "Card" or obj.name == "Custom_Tile" then
             local name = decolor(obj.getGMNotes())
@@ -2250,8 +2277,8 @@ end
 
 -- Doesn't validate.
 function App:adjust_link_tile_value(link_name)
-   local link = self.objects.links[link_name]
-   for obj in ivalues(link.getObjects()) do
+   local link_zone = self.objects.link_zones[link_name]
+   for obj in ivalues(link_zone.getObjects()) do
       local name = decolor(obj.getGMNotes())
       if obj.name == "Custom_Tile" and ( name == "Canal" or name == "Railway" ) then
          local value = self:get_value_of_link(link_name)
@@ -2276,7 +2303,7 @@ end
 
 -- Doesn't validate.
 function App:adjust_link_tile_values()
-   for link_name in keys(self.objects.links) do
+   for link_name in keys(self.links) do
       self:adjust_link_tile_value(link_name)
    end
 end

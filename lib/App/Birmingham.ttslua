@@ -96,6 +96,116 @@ function BirminghamApp:init_industry_tile_data()
 end
 
 
+function BirminghamApp:init_locations_and_links()
+   -- Don't lock since used as lookup.
+   self.locations = rconst({
+      [ "Belper"           ] = { "Belper (West)",
+                                 "Belper (Central)",
+                                 "Belper (East)"        },
+      [ "Birmingham"       ] = { "Birmingham (NW)",
+                                 "Birmingham (NE)",
+                                 "Birmingham (SW)",
+                                 "Birmingham (SE)"      },
+      [ "Burton-on-Trent"  ] = { "Burton-on-Trent (W)",
+                                 "Burton-on-Trent (E)"  },
+      [ "Cannock"          ] = { "Cannock (West)",
+                                 "Cannock (East)"       },
+      [ "Coalbrookdale"    ] = { "Coalbrookdale (W)",
+                                 "Coalbrookdale (N)",
+                                 "Coalbrookdale (E)"    },
+      [ "Coventry"         ] = { "Coventry (West)",
+                                 "Coventry (North)",
+                                 "Coventry (East)"      },
+      [ "Derby"            ] = { "Derby (West)",
+                                 "Derby (North)",
+                                 "Derby (East)"         },
+      [ "Dudley"           ] = { "Dudley (West)",
+                                 "Dudley (East)"        },
+      [ "Kidderminster"    ] = { "Kidderminster (W)",
+                                 "Kidderminster (E)"    },
+      [ "Leek"             ] = { "Leek (West)",
+                                 "Leek (East)"          },
+      [ "Nuneaton"         ] = { "Nuneaton (West)",
+                                 "Nuneaton (East)"      },
+      [ "Redditch"         ] = { "Redditch (West)",
+                                 "Redditch (East)"      },
+      [ "Stafford"         ] = { "Stafford (West)",
+                                 "Stafford (East)"      },
+      [ "Stoke-on-Trent"   ] = { "Stoke-on-Trent (W)",
+                                 "Stoke-on-Trent (N)",
+                                 "Stoke-on-Trent (E)"   },
+      [ "Stone"            ] = { "Stone (West)",
+                                 "Stone (East)"         },
+      [ "Tamworth"         ] = { "Tamworth (West)",
+                                 "Tamworth (East)"      },
+      [ "Northern Unnamed" ] = { "Northern Unnamed"     },
+      [ "Southern Unnamed" ] = { "Southern Unnamed"     },
+      [ "Uttoxeter"        ] = { "Uttoxeter (West)",
+                                 "Uttoxeter (East)"     },
+      [ "Walsall"          ] = { "Walsall (West)",
+                                 "Walsall (East)"       },
+      [ "Wolverhampton"    ] = { "Wolverhampton (W)",
+                                 "Wolverhampton (E)"    },
+      [ "Worcester"        ] = { "Worcester (West)",
+                                 "Worcester (East)"     },
+   })
+
+   -- Don't lock since used as lookup.
+   self.links = rconst({
+      [ "Belper - Derby"                               ] = { canal = true,  rail = true  },
+      [ "Belper - Leek"                                ] = { canal = false, rail = true  },
+      [ "Birmingham - Coventry"                        ] = { canal = true,  rail = true  },
+      [ "Birmingham - Dudley"                          ] = { canal = true,  rail = true  },
+      [ "Birmingham - Nuneaton"                        ] = { canal = false, rail = true  },
+      [ "Birmingham - Oxford"                          ] = { canal = true,  rail = true  },
+      [ "Birmingham - Redditch"                        ] = { canal = false, rail = true  },
+      [ "Birmingham - Tamworth"                        ] = { canal = true,  rail = true  },
+      [ "Birmingham - Walsall"                         ] = { canal = true,  rail = true  },
+      [ "Birmingham - Worcester"                       ] = { canal = true,  rail = true  },
+      [ "Burton-on-Trent - Cannock"                    ] = { canal = false, rail = true  },
+      [ "Burton-on-Trent - Derby"                      ] = { canal = true,  rail = true  },
+      [ "Burton-on-Trent - Stone"                      ] = { canal = true,  rail = true  },
+      [ "Burton-on-Trent - Tamworth"                   ] = { canal = true,  rail = true  },
+      [ "Burton-on-Trent - Walsall"                    ] = { canal = true,  rail = false },
+      [ "Cannock - Stafford"                           ] = { canal = true,  rail = true  },
+      [ "Cannock - Northern Unnamed"                   ] = { canal = true,  rail = true  },
+      [ "Cannock - Walsall"                            ] = { canal = true,  rail = true  },
+      [ "Cannock - Wolverhampton"                      ] = { canal = true,  rail = true  },
+      [ "Coalbrookdale - Kidderminster"                ] = { canal = true,  rail = true  },
+      [ "Coalbrookdale - Shrewsbury"                   ] = { canal = true,  rail = true  },
+      [ "Coalbrookdale - Wolverhampton"                ] = { canal = true,  rail = true  },
+      [ "Coventry - Nuneaton"                          ] = { canal = false, rail = true  },
+      [ "Derby - Nottingham"                           ] = { canal = true,  rail = true  },
+      [ "Derby - Uttoxeter"                            ] = { canal = false, rail = true  },
+      [ "Dudley - Kidderminster"                       ] = { canal = true,  rail = true  },
+      [ "Dudley - Wolverhampton"                       ] = { canal = true,  rail = true  },
+      [ "Gloucester - Redditch"                        ] = { canal = true,  rail = true  },
+      [ "Gloucester - Worcester"                       ] = { canal = true,  rail = true  },
+      [ "Kidderminster - Southern Unnamed - Worcester" ] = { canal = true,  rail = true  },
+      [ "Leek - Stoke-on-Trent"                        ] = { canal = true,  rail = true  },
+      [ "Nuneaton - Tamworth"                          ] = { canal = true,  rail = true  },
+      [ "Redditch - Oxford"                            ] = { canal = true,  rail = true  },
+      [ "Stafford - Stone"                             ] = { canal = true,  rail = true  },
+      [ "Stoke-on-Trent - Stone"                       ] = { canal = true,  rail = true  },
+      [ "Stoke-on-Trent - Warrington"                  ] = { canal = true,  rail = true  },
+      [ "Stone - Uttoxeter"                            ] = { canal = false, rail = true  },
+      [ "Tamworth - Walsall"                           ] = { canal = false, rail = true  },
+      [ "Walsall - Wolverhampton"                      ] = { canal = true,  rail = true  },
+   })
+
+   -- Don't lock since used as lookup.
+   self.bonuses_by_external_location = const({
+      [ "Gloucester" ] = 2,
+      [ "Nottingham" ] = 2,
+      [ "Oxford"     ] = 2,
+      [ "Shrewsbury" ] = 2,
+      [ "Warrington" ] = 2,
+   })
+
+   SUPER.init_locations_and_links(self)
+end
+
+
 function BirminghamApp:init_objects()
    SUPER.init_objects(self)
 
@@ -135,62 +245,62 @@ function BirminghamApp:init_objects()
          { merchant_zone = "eefd28", beer_zone = "1f418b" },
       },
 
-      -- Each zone is called a "location square".
+      -- We call each zone of a location a "location square".
       -- Using .getGMNotes() on the location square gets the name of the location.
-      locations = {
-         [ "Belper"           ] = { [ "Belper (West)"       ] = "86d147",
-                                    [ "Belper (Central)"    ] = "30a911",
-                                    [ "Belper (East)"       ] = "8dc82d" },
-         [ "Birmingham"       ] = { [ "Birmingham (NW)"     ] = "33f755",
-                                    [ "Birmingham (NE)"     ] = "12686f",
-                                    [ "Birmingham (SW)"     ] = "ff7d65",
-                                    [ "Birmingham (SE)"     ] = "efed8b" },
-         [ "Burton-on-Trent"  ] = { [ "Burton-on-Trent (W)" ] = "38f370",
-                                    [ "Burton-on-Trent (E)" ] = "68b7fb" },
-         [ "Cannock"          ] = { [ "Cannock (West)"      ] = "00c4ea",
-                                    [ "Cannock (East)"      ] = "d60870" },
-         [ "Coalbrookdale"    ] = { [ "Coalbrookdale (W)"   ] = "e49be9",
-                                    [ "Coalbrookdale (N)"   ] = "4cf6c2",
-                                    [ "Coalbrookdale (E)"   ] = "12b206" },
-         [ "Coventry"         ] = { [ "Coventry (West)"     ] = "aa5cd9",
-                                    [ "Coventry (North)"    ] = "75a660",
-                                    [ "Coventry (East)"     ] = "af6d14" },
-         [ "Derby"            ] = { [ "Derby (West)"        ] = "cb5740",
-                                    [ "Derby (North)"       ] = "789ff1",
-                                    [ "Derby (East)"        ] = "3322ec" },
-         [ "Dudley"           ] = { [ "Dudley (West)"       ] = "970b48",
-                                    [ "Dudley (East)"       ] = "16493f" },
-         [ "Kidderminster"    ] = { [ "Kidderminster (W)"   ] = "d5cc71",
-                                    [ "Kidderminster (E)"   ] = "11e3b5" },
-         [ "Leek"             ] = { [ "Leek (West)"         ] = "d8985b",
-                                    [ "Leek (East)"         ] = "1dde98" },
-         [ "Nuneaton"         ] = { [ "Nuneaton (West)"     ] = "a21200",
-                                    [ "Nuneaton (East)"     ] = "cdfaf8" },
-         [ "Redditch"         ] = { [ "Redditch (West)"     ] = "e1d2e8",
-                                    [ "Redditch (East)"     ] = "6dd500" },
-         [ "Stafford"         ] = { [ "Stafford (West)"     ] = "c23c28",
-                                    [ "Stafford (East)"     ] = "cd4849" },
-         [ "Stoke-on-Trent"   ] = { [ "Stoke-on-Trent (W)"  ] = "1953cc",
-                                    [ "Stoke-on-Trent (N)"  ] = "b3ccc1",
-                                    [ "Stoke-on-Trent (E)"  ] = "a050bc" },
-         [ "Stone"            ] = { [ "Stone (West)"        ] = "53cde4",
-                                    [ "Stone (East)"        ] = "8d81e6" },
-         [ "Tamworth"         ] = { [ "Tamworth (West)"     ] = "40b8ca",
-                                    [ "Tamworth (East)"     ] = "1dcb50" },
-         [ "Northern Unnamed" ] = { [ "Northern Unnamed"    ] = "1101de" },
-         [ "Southern Unnamed" ] = { [ "Southern Unnamed"    ] = "210464" },
-         [ "Uttoxeter"        ] = { [ "Uttoxeter (West)"    ] = "b4887f",
-                                    [ "Uttoxeter (East)"    ] = "f00e0b" },
-         [ "Walsall"          ] = { [ "Walsall (West)"      ] = "f2ac6b",
-                                    [ "Walsall (East)"      ] = "858ccc" },
-         [ "Wolverhampton"    ] = { [ "Wolverhampton (W)"   ] = "d8b5f3",
-                                    [ "Wolverhampton (E)"   ] = "313ef0" },
-         [ "Worcester"        ] = { [ "Worcester (West)"    ] = "b5dd82",
-                                    [ "Worcester (East)"    ] = "74f12e" },
+      location_squares = {
+         [ "Belper (West)"       ] = "86d147",
+         [ "Belper (Central)"    ] = "30a911",
+         [ "Belper (East)"       ] = "8dc82d",
+         [ "Birmingham (NW)"     ] = "33f755",
+         [ "Birmingham (NE)"     ] = "12686f",
+         [ "Birmingham (SW)"     ] = "ff7d65",
+         [ "Birmingham (SE)"     ] = "efed8b",
+         [ "Burton-on-Trent (W)" ] = "38f370",
+         [ "Burton-on-Trent (E)" ] = "68b7fb",
+         [ "Cannock (West)"      ] = "00c4ea",
+         [ "Cannock (East)"      ] = "d60870",
+         [ "Coalbrookdale (W)"   ] = "e49be9",
+         [ "Coalbrookdale (N)"   ] = "4cf6c2",
+         [ "Coalbrookdale (E)"   ] = "12b206",
+         [ "Coventry (West)"     ] = "aa5cd9",
+         [ "Coventry (North)"    ] = "75a660",
+         [ "Coventry (East)"     ] = "af6d14",
+         [ "Derby (West)"        ] = "cb5740",
+         [ "Derby (North)"       ] = "789ff1",
+         [ "Derby (East)"        ] = "3322ec",
+         [ "Dudley (West)"       ] = "970b48",
+         [ "Dudley (East)"       ] = "16493f",
+         [ "Kidderminster (W)"   ] = "d5cc71",
+         [ "Kidderminster (E)"   ] = "11e3b5",
+         [ "Leek (West)"         ] = "d8985b",
+         [ "Leek (East)"         ] = "1dde98",
+         [ "Nuneaton (West)"     ] = "a21200",
+         [ "Nuneaton (East)"     ] = "cdfaf8",
+         [ "Redditch (West)"     ] = "e1d2e8",
+         [ "Redditch (East)"     ] = "6dd500",
+         [ "Stafford (West)"     ] = "c23c28",
+         [ "Stafford (East)"     ] = "cd4849",
+         [ "Stoke-on-Trent (W)"  ] = "1953cc",
+         [ "Stoke-on-Trent (N)"  ] = "b3ccc1",
+         [ "Stoke-on-Trent (E)"  ] = "a050bc",
+         [ "Stone (West)"        ] = "53cde4",
+         [ "Stone (East)"        ] = "8d81e6",
+         [ "Tamworth (West)"     ] = "40b8ca",
+         [ "Tamworth (East)"     ] = "1dcb50",
+         [ "Northern Unnamed"    ] = "1101de",
+         [ "Southern Unnamed"    ] = "210464",
+         [ "Uttoxeter (West)"    ] = "b4887f",
+         [ "Uttoxeter (East)"    ] = "f00e0b",
+         [ "Walsall (West)"      ] = "f2ac6b",
+         [ "Walsall (East)"      ] = "858ccc",
+         [ "Wolverhampton (W)"   ] = "d8b5f3",
+         [ "Wolverhampton (E)"   ] = "313ef0",
+         [ "Worcester (West)"    ] = "b5dd82",
+         [ "Worcester (East)"    ] = "74f12e",
       },
 
       -- Using .getGMNotes() on the link gets the name found here.
-      links = {
+      link_zones = {
          [ "Belper - Derby"                               ] = "67508c",
          [ "Belper - Leek"                                ] = "50cd15",
          [ "Birmingham - Coventry"                        ] = "6e89f4",
@@ -251,20 +361,6 @@ function BirminghamApp:init_resources()
    }))
 
    SUPER.init_resources(self)
-end
-
-
-function BirminghamApp:init_locations_and_links()
-   -- Don't lock since used as lookup.
-   self.bonuses_by_external_location = const({
-      [ "Gloucester" ] = 2,
-      [ "Nottingham" ] = 2,
-      [ "Oxford"     ] = 2,
-      [ "Shrewsbury" ] = 2,
-      [ "Warrington" ] = 2,
-   })
-
-   SUPER.init_locations_and_links(self)
 end
 
 

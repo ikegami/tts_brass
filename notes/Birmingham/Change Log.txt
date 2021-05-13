@@ -1,3 +1,6 @@
+[~~~~-~~-~~ Kinithin]
+- Check that canals and railways are only used during the appropriate era.
+
 [2021-05-03 Kinithin]
 - New hosting for wooden cube resources.
 

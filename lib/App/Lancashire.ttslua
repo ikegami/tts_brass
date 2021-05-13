@@ -96,6 +96,108 @@ function LancashireApp:init_industry_tile_data()
 end
 
 
+function LancashireApp:init_locations_and_links()
+   -- Don't lock since used as lookup.
+   self.locations = rconst({
+      [ "Barrow-in-Furness"    ] = { "Barrow-in-Furness (W)",
+                                     "Barrow-in-Furness (E)"     },
+      [ "Birkenhead"           ] = { "Birkenhead"                },
+      [ "Blackburn"            ] = { "Blackburn (N)",
+                                     "Blackburn (W)",
+                                     "Blackburn (E)"             },
+      [ "Bolton"               ] = { "Bolton (NW)",
+                                     "Bolton (NE)",
+                                     "Bolton (S)"                },
+      [ "Burnley"              ] = { "Burnley (N)",
+                                     "Burnley (S)"               },
+      [ "Bury"                 ] = { "Bury (N)",
+                                     "Bury (S)"                  },
+      [ "Colne"                ] = { "Colne (N)",
+                                     "Colne (S)"                 },
+      [ "Ellesmere Port"       ] = { "Ellesmere Port"            },
+      [ "Fleetwood"            ] = { "Fleetwood"                 },
+      [ "Lancaster"            ] = { "Lancaster (W)",
+                                     "Lancaster (E)"             },
+      [ "Liverpool"            ] = { "Liverpool (NW)",
+                                     "Liverpool (NE)",
+                                     "Liverpool (SW)",
+                                     "Liverpool (SE)"            },
+      [ "Macclesfield"         ] = { "Macclesfield (W)",
+                                     "Macclesfield (E)"          },
+      [ "Manchester"           ] = { "Manchester (NW)",
+                                     "Manchester (NE)",
+                                     "Manchester (SW)",
+                                     "Manchester (SE)"           },
+      [ "Oldham"               ] = { "Oldham (W)",
+                                     "Oldham (E)"                },
+      [ "Preston"              ] = { "Preston (NW)",
+                                     "Preston (NE)",
+                                     "Preston (S)"               },
+      [ "Rochdale"             ] = { "Rochdale (N)",
+                                     "Rochdale (SW)",
+                                     "Rochdale (SE)"             },
+      [ "Stockport"            ] = { "Stockport (W)",
+                                     "Stockport (E)"             },
+      [ "Warrington & Runcorn" ] = { "Warrington & Runcorn (W)",
+                                     "Warrington & Runcorn (E)"  },
+      [ "Wigan"                ] = { "Wigan (N)",
+                                     "Wigan (S)"                 },
+   })
+
+   -- Don't lock since used as lookup.
+   self.links = rconst({
+      [ "Barrow-in-Furness - Lancaster"         ] = { canal = false, rail = true  },
+      [ "Birkenhead - Ellesmere Port"           ] = { canal = false, rail = true  },
+      [ "Blackburn - Bolton"                    ] = { canal = false, rail = true  },
+      [ "Blackburn - Burnley"                   ] = { canal = true,  rail = true  },
+      [ "Blackburn - Preston"                   ] = { canal = false, rail = true  },
+      [ "Blackburn - Wigan"                     ] = { canal = true,  rail = true  },
+      [ "Blackpool - Preston"                   ] = { canal = false, rail = true  },
+      [ "Bolton - Bury"                         ] = { canal = true,  rail = true  },
+      [ "Bolton - Manchester"                   ] = { canal = true,  rail = true  },
+      [ "Bolton - Wigan"                        ] = { canal = false, rail = true  },
+      [ "Burnley - Bury"                        ] = { canal = false, rail = true  },
+      [ "Burnley - Colne"                       ] = { canal = true,  rail = true  },
+      [ "Bury - Manchester"                     ] = { canal = true,  rail = true  },
+      [ "Bury - Rochdale"                       ] = { canal = false, rail = true  },
+      [ "Colne - Yorkshire"                     ] = { canal = true,  rail = true  },
+      [ "Ellesmere Port - Liverpool"            ] = { canal = true,  rail = false },
+      [ "Ellesmere Port - Northwich"            ] = { canal = true,  rail = true  },
+      [ "Ellesmere Port - Warrington & Runcorn" ] = { canal = true,  rail = true  },
+      [ "Fleetwood - Preston"                   ] = { canal = true,  rail = true  },
+      [ "Lancaster - Preston"                   ] = { canal = true,  rail = true  },
+      [ "Lancaster - Scotland"                  ] = { canal = false, rail = true  },
+      [ "Liverpool - Southport"                 ] = { canal = false, rail = true  },
+      [ "Liverpool - Warrington & Runcorn"      ] = { canal = false, rail = true  },
+      [ "Liverpool - Wigan"                     ] = { canal = true,  rail = true  },
+      [ "Macclesfield - Stockport"              ] = { canal = true,  rail = true  },
+      [ "Macclesfield - The Midlands"           ] = { canal = true,  rail = true  },
+      [ "Manchester - Oldham"                   ] = { canal = true,  rail = true  },
+      [ "Manchester - Stockport"                ] = { canal = true,  rail = true  },
+      [ "Manchester - Warrington & Runcorn"     ] = { canal = true,  rail = true  },
+      [ "Northwich - The Midlands"              ] = { canal = true,  rail = true  },
+      [ "Oldham - Rochdale"                     ] = { canal = true,  rail = true  },
+      [ "Preston - Southport"                   ] = { canal = false, rail = true  },
+      [ "Preston - Wigan"                       ] = { canal = true,  rail = true  },
+      [ "Rochdale - Yorkshire"                  ] = { canal = true,  rail = true  },
+      [ "Southport - Wigan"                     ] = { canal = false, rail = true  },
+      [ "Warrington & Runcorn - Wigan"          ] = { canal = true,  rail = true  },
+   })
+
+   -- Don't lock since used as lookup.
+   self.bonuses_by_external_location = const({
+      [ "Blackpool"    ] = 2,
+      [ "Northwich"    ] = 2,
+      [ "Scotland"     ] = 2,
+      [ "Southport"    ] = 2,
+      [ "The Midlands" ] = 2,
+      [ "Yorkshire"    ] = 2,
+   })
+
+   SUPER.init_locations_and_links(self)
+end
+
+
 function LancashireApp:init_objects()
    local state = self.state
    local num_players = state:get_num_players()
@@ -123,56 +225,56 @@ function LancashireApp:init_objects()
       iron_market_zones = { "550e2a", "581ae8", "6581f5", "6c2b6d", "3bcd07", "2734e8", "0a7292", "2beec8" },
       distant_market_zones = { "d02bc1", "7921a6", "e8e801", "9d419f", "844a56", "045c53", "6bca4e", "436909", "617a3c" },
 
-      -- Each zone is called a "location square".
+      -- We call each zone of a location a "location square".
       -- Using .getGMNotes() on the location square gets the name of the location.
-      locations = {
-         [ "Barrow-in-Furness"    ] = { [ "Barrow-in-Furness (W)"    ] = "426a10",
-                                        [ "Barrow-in-Furness (E)"    ] = "cf611f" },
-         [ "Birkenhead"           ] = { [ "Birkenhead"               ] = "3ccdcc" },
-         [ "Blackburn"            ] = { [ "Blackburn (N)"            ] = "6f807f",
-                                        [ "Blackburn (W)"            ] = "38f370",
-                                        [ "Blackburn (E)"            ] = "68b7fb" },
-         [ "Bolton"               ] = { [ "Bolton (NW)"              ] = "087a08",
-                                        [ "Bolton (NE)"              ] = "b699b0",
-                                        [ "Bolton (S)"               ] = "358114" },
-         [ "Burnley"              ] = { [ "Burnley (N)"              ] = "bb78b2",
-                                        [ "Burnley (S)"              ] = "d2d30a" },
-         [ "Bury"                 ] = { [ "Bury (N)"                 ] = "4d037f",
-                                        [ "Bury (S)"                 ] = "a0a19f" },
-         [ "Colne"                ] = { [ "Colne (N)"                ] = "711ca4",
-                                        [ "Colne (S)"                ] = "05533c" },
-         [ "Ellesmere Port"       ] = { [ "Ellesmere Port"           ] = "d2b988" },
-         [ "Fleetwood"            ] = { [ "Fleetwood"                ] = "275cb6" },
-         [ "Lancaster"            ] = { [ "Lancaster (W)"            ] = "faa397",
-                                        [ "Lancaster (E)"            ] = "594082" },
-         [ "Liverpool"            ] = { [ "Liverpool (NW)"           ] = "e3b7a3",
-                                        [ "Liverpool (NE)"           ] = "91911b",
-                                        [ "Liverpool (SW)"           ] = "50d45a",
-                                        [ "Liverpool (SE)"           ] = "d6e737" },
-         [ "Macclesfield"         ] = { [ "Macclesfield (W)"         ] = "3323a4",
-                                        [ "Macclesfield (E)"         ] = "875228" },
-         [ "Manchester"           ] = { [ "Manchester (NW)"          ] = "33f755",
-                                        [ "Manchester (NE)"          ] = "12686f",
-                                        [ "Manchester (SW)"          ] = "ff7d65",
-                                        [ "Manchester (SE)"          ] = "efed8b" },
-         [ "Oldham"               ] = { [ "Oldham (W)"               ] = "c14e85",
-                                        [ "Oldham (E)"               ] = "f438fe" },
-         [ "Preston"              ] = { [ "Preston (NW)"             ] = "ec5dd1",
-                                        [ "Preston (NE)"             ] = "2b0036",
-                                        [ "Preston (S)"              ] = "ed3210" },
-         [ "Rochdale"             ] = { [ "Rochdale (N)"             ] = "010e97",
-                                        [ "Rochdale (SW)"            ] = "c9f3a4",
-                                        [ "Rochdale (SE)"            ] = "f88687" },
-         [ "Stockport"            ] = { [ "Stockport (W)"            ] = "a15ce2",
-                                        [ "Stockport (E)"            ] = "129bf3" },
-         [ "Warrington & Runcorn" ] = { [ "Warrington & Runcorn (W)" ] = "29e020",
-                                        [ "Warrington & Runcorn (E)" ] = "245596" },
-         [ "Wigan"                ] = { [ "Wigan (N)"                ] = "101933",
-                                        [ "Wigan (S)"                ] = "f97fdc" },
+      location_squares = {
+         [ "Barrow-in-Furness (W)"    ] = "426a10",
+         [ "Barrow-in-Furness (E)"    ] = "cf611f",
+         [ "Birkenhead"               ] = "3ccdcc",
+         [ "Blackburn (N)"            ] = "6f807f",
+         [ "Blackburn (W)"            ] = "38f370",
+         [ "Blackburn (E)"            ] = "68b7fb",
+         [ "Bolton (NW)"              ] = "087a08",
+         [ "Bolton (NE)"              ] = "b699b0",
+         [ "Bolton (S)"               ] = "358114",
+         [ "Burnley (N)"              ] = "bb78b2",
+         [ "Burnley (S)"              ] = "d2d30a",
+         [ "Bury (N)"                 ] = "4d037f",
+         [ "Bury (S)"                 ] = "a0a19f",
+         [ "Colne (N)"                ] = "711ca4",
+         [ "Colne (S)"                ] = "05533c",
+         [ "Ellesmere Port"           ] = "d2b988",
+         [ "Fleetwood"                ] = "275cb6",
+         [ "Lancaster (W)"            ] = "faa397",
+         [ "Lancaster (E)"            ] = "594082",
+         [ "Liverpool (NW)"           ] = "e3b7a3",
+         [ "Liverpool (NE)"           ] = "91911b",
+         [ "Liverpool (SW)"           ] = "50d45a",
+         [ "Liverpool (SE)"           ] = "d6e737",
+         [ "Macclesfield (W)"         ] = "3323a4",
+         [ "Macclesfield (E)"         ] = "875228",
+         [ "Manchester (NW)"          ] = "33f755",
+         [ "Manchester (NE)"          ] = "12686f",
+         [ "Manchester (SW)"          ] = "ff7d65",
+         [ "Manchester (SE)"          ] = "efed8b",
+         [ "Oldham (W)"               ] = "c14e85",
+         [ "Oldham (E)"               ] = "f438fe",
+         [ "Preston (NW)"             ] = "ec5dd1",
+         [ "Preston (NE)"             ] = "2b0036",
+         [ "Preston (S)"              ] = "ed3210",
+         [ "Rochdale (N)"             ] = "010e97",
+         [ "Rochdale (SW)"            ] = "c9f3a4",
+         [ "Rochdale (SE)"            ] = "f88687",
+         [ "Stockport (W)"            ] = "a15ce2",
+         [ "Stockport (E)"            ] = "129bf3",
+         [ "Warrington & Runcorn (W)" ] = "29e020",
+         [ "Warrington & Runcorn (E)" ] = "245596",
+         [ "Wigan (N)"                ] = "101933",
+         [ "Wigan (S)"                ] = "f97fdc",
       },
 
       -- Using .getGMNotes() on the link gets the name found here.
-      links = {
+      link_zones = {
          [ "Barrow-in-Furness - Lancaster"         ] = "6f2977",
          [ "Birkenhead - Ellesmere Port"           ] = "f14ab3",
          [ "Blackburn - Bolton"                    ] = "d0120f",
@@ -233,21 +335,6 @@ function LancashireApp:init_resources()
    }))
 
    SUPER.init_resources(self)
-end
-
-
-function LancashireApp:init_locations_and_links()
-   -- Don't lock since used as lookup.
-   self.bonuses_by_external_location = const({
-      [ "Blackpool"    ] = 2,
-      [ "Northwich"    ] = 2,
-      [ "Scotland"     ] = 2,
-      [ "Southport"    ] = 2,
-      [ "The Midlands" ] = 2,
-      [ "Yorkshire"    ] = 2,
-   })
-
-   SUPER.init_locations_and_links(self)
 end
 
 
