@@ -1,5 +1,6 @@
 [~~~~-~~-~~ Kinithin]
-- Check that canals and railways are only used during the appropriate era.
+- Added checks that canals and railways are only used during the appropriate era.
+- Made it so objects only snap to positions appropriate for the object.
 
 [2021-05-03 Kinithin]
 - New hosting for wooden cube resources.
