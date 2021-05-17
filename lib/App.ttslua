@@ -129,6 +129,8 @@ function App:init(saved_state_json)
    self:init_locations_and_links()     -- Populates self.locations and self.links, self.bonuses_by_external_location, self.loc_names_by_link_name and self.link_names_by_loc_name.
    self:init_objects()                 -- Populates self.objects.
    self:init_resources()               -- Populates self.resources and self.resource_id_by_name.
+
+   self.control_panel_height = tonumber(UI.getAttribute("PurpleWindow", "height"))
 end
 
 
@@ -742,13 +744,15 @@ function App:min_max_window(color_name)
    local window_id  = color_name .. "Window"
    local topbar_id  = color_name .. "TopBar"
    local content_id = color_name .. "Content"
-   if (tonumber(UI.getAttribute(window_id, "Height")) > tonumber(UI.getAttribute(topbar_id, "Height"))) then
-      UI.setAttribute(window_id, "OffsetXY", "0 85")
-      UI.setAttribute(window_id, "Height", tonumber(UI.getAttribute(topbar_id, "Height")))
+   if (tonumber(UI.getAttribute(window_id, "height")) > tonumber(UI.getAttribute(topbar_id, "height"))) then
+      local title_height = tonumber(UI.getAttribute(topbar_id, "height"))
+      local offset = ( self.control_panel_height - title_height ) / 2
+      UI.setAttribute(window_id, "offsetXY", "0 " .. offset)
+      UI.setAttribute(window_id, "height", title_height)
       UI.hide(content_id)
    else
-      UI.setAttribute(window_id, "OffsetXY", "0 0")
-      UI.setAttribute(window_id, "Height", 200)
+      UI.setAttribute(window_id, "offsetXY", "0 0")
+      UI.setAttribute(window_id, "height", self.control_panel_height)
       UI.show(content_id)
    end
 end
