@@ -445,55 +445,64 @@ local update_ui_dispatch_table = {
       return
          "Click “Start Game”",
          "Start Game",
+         false,
          false
    end,
    [ App.Phases.CANAL_ERA_ROUND ] = function(state)
       return
          "Canal Era, Round " .. state:get_current_round() .. " of " .. state:get_num_rounds(),
          "End " .. state:get_current_player() .."’s Turn",
-         false
+         false,
+         true
    end,
    [ App.Phases.CANAL_ERA_INTER_ROUND ] = function(state)
       return
          "Canal Era, Round " .. state:get_current_round() .. " of " .. state:get_num_rounds(),
          "Start the Next Round",
+         true,
          true
    end,
    [ App.Phases.CANAL_ERA_SCORE ] = function(state)
       return
          "End of the Canal Era",
          "Score the Canal Era",
+         true,
          true
    end,
    [ App.Phases.INTER_ERA ] = function(state)
       return
          "End of the Canal Era",
          "Start the Rail Era",
+         true,
          true
    end,
    [ App.Phases.RAIL_ERA_ROUND ] = function(state)
       return
          "Rail Era, Round " .. state:get_current_round() .. " of " .. state:get_num_rounds(),
          "End " .. state:get_current_player() .."’s Turn",
-         false
+         false,
+         true
    end,
    [ App.Phases.RAIL_ERA_INTER_ROUND ] = function(state)
       return
          "Rail Era, Round " .. state:get_current_round() .. " of " .. state:get_num_rounds(),
          "Start the Next Round",
+         true,
          true
    end,
    [ App.Phases.RAIL_ERA_SCORE ] = function(state)
       return
          "End of the Rail Era",
          "Score the Rail Era",
+         true,
          true
    end,
    [ App.Phases.GAME_ENDED ] = function(state)
       return
          state:get_game_result(),
          "Game Over!",
-         true
+         true,
+         false
    end,
 }
 
@@ -506,7 +515,7 @@ function App:update_ui()
    local current_round  = state:get_current_round()
    local current_player = state:get_current_player()
 
-   local game_info_label, advance_game_button_label, announce =
+   local game_info_label, advance_game_button_label, announce, show_control_panel =
       update_ui_dispatch_table[current_phase](state)
 
    -- Avoid repeating announces if there are no state changes.
@@ -533,7 +542,7 @@ function App:update_ui()
    end
 
    for color_name in keys(self.objects.players) do
-      UI.setAttribute(color_name .. "Window", "active", state:get_game_started() and state:is_active_player(color_name))
+      UI.setAttribute(color_name .. "Window", "active", show_control_panel and state:is_active_player(color_name))
    end
 
    UI.setAttribute("advance_game_button_admin_box",  "active", authorized == "Admin")
