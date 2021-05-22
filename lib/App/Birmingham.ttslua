@@ -53,10 +53,11 @@ end
 -- Object initialization
 
 function BirminghamApp:init(saved_state_json)
-   SUPER.init(self, saved_state_json)
    self.initial_funds = 17
    self.loan_amount = 30
-   self.money_value = false
+   self.has_immediate_vps = true
+   self.money_value = 0
+   SUPER.init(self, saved_state_json)
 end
 
 

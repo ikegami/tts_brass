@@ -32,9 +32,10 @@ State.mt = {
 
 local state_vars = const(lock({
    "current_phase",
-   "active_players",    -- Array of color names.
+   "player_names_by_color_name",
    "current_round",
    "current_player",    -- Color name.
+   "score_data",
    "game_result",
 }))
 
@@ -44,12 +45,14 @@ local option_names = const(lock({
    "min_players",         -- Force the game to have at least this many players.
    "skip_discard_check",  -- Don't enforce valid turns if true.
    "cool_down",           -- Length of the cool-down on the game-advancing button.
+   "short",               -- Reduces each era to one round.
 }))
 
 local is_option_name = const(make_set(option_names))
 
 local derived_vars = const(lock({
    "game_started",
+   "active_players",    -- Array of color names.
    "is_active_player",  -- Keyed by color names.
    "num_players",
    "num_rounds",
@@ -192,20 +195,21 @@ end
 
 function State:update_derived()
    local state   = self.state
+   local opts    = self.opts
    local derived = self.derived
 
    derived.game_started = state.current_phase > self.app.Phases.NOT_STARTED
 
    if derived.game_started then
-      derived.is_active_player = make_set(state.active_players)
-
-      derived.num_players = #state.active_players
-      derived.num_rounds  = 12 - derived.num_players
+      derived.active_players   = get_keys(state.player_names_by_color_name)
+      derived.is_active_player = make_set(derived.active_players)
+      derived.num_players      = #derived.active_players
+      derived.num_rounds       = opts.short and 1 or 12 - derived.num_players
    else
+      derived.active_players   = nil
       derived.is_active_player = nil
-
-      derived.num_players = nil
-      derived.num_rounds  = nil
+      derived.num_players      = nil
+      derived.num_rounds       = nil
    end
 end
 

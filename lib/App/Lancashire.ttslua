@@ -64,10 +64,11 @@ end
 -- Object initialization
 
 function LancashireApp:init(saved_state_json)
-   SUPER.init(self, saved_state_json)
    self.initial_funds = 30
    self.loan_amount = 10
-   self.money_value = false   -- Will change later.
+   self.has_immediate_vps = false
+   self.money_value = 10   -- Meaning 1 VP per £10.
+   SUPER.init(self, saved_state_json)
 end
 
 
@@ -474,8 +475,6 @@ end
 
 
 function LancashireApp:setup_rail_era()
-   self.money_value = 10   -- Meaning 1 VP per £10.
-
    local promises = { }
    table.insert(promises, SUPER.setup_rail_era(self))
    table.insert(promises, self:reset_distant_market())

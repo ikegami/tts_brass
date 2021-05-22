@@ -1,32 +1,49 @@
 <Defaults>
-   <Panel  class="Window"       width="200" height="220" rectAlignment="MiddleRight" returnToOriginalPositionWhenReleased="false" allowDragging="true" color="black" outline="black"/>
+   <Button class="AdvanceGamePopupButton"
+      width="40" height="40" rectAlignment="MiddleRight"
+      colors="#A9B1D3|#6877B3|#6877B3|#666666"
+   />
+
+   <Panel  class="Window"       width="200" height="220" rectAlignment="MiddleRight" allowDragging="true" returnToOriginalPositionWhenReleased="false" color="black" outline="black"/>
    <Panel  class="TopBar"       width="200" height="30"  rectAlignment="UpperCenter"/>
-   <Text   class="WindowTitle"  width="200" height="20"  rectAlignment="UpperCenter" offsetXY="0 -5" resizeTextForBestFit="true" color="#FFFFFF" text="Buy Menu" fontSize="18" fontStyle="Bold" />
-   <Button class="topButtons"   width="20"  height="20"  rectAlignment="UpperRight"  offsetXY="-5 -5" fontSize="18" color="#eeeeee"  textColor="#000000" text="-" />
+   <Text   class="WindowTitle"  width="200" height="20"  rectAlignment="UpperCenter" offsetXY="0 -5" resizeTextForBestFit="true" color="#FFFFFF" text="Buy Menu" fontSize="18" fontStyle="Bold"/>
+   <Button class="topButtons"   width="20"  height="20"  rectAlignment="UpperRight"  offsetXY="-5 -5" fontSize="18" color="#eeeeee"  textColor="#000000" text="-"/>
    <Panel  class="mainPanel"    width="200" height="190" rectAlignment="UpperCenter" offsetXY="0 -30"/>
    <Text   class="buttonText"   fontSize="22" fontStyle="Bold"/>
+
+   <Panel  class="ScoreBoardWindow"                                                           color="#2A2A66" outline="#6877B3" allowDragging="true" returnToOriginalPositionWhenReleased="false"/>
+   <Panel  class="ScoreBoardTitleBar"     width="328" height="25"  rectAlignment="UpperLeft"  color="#A9B1D3"/>
+   <Button class="ScoreBoardTitleBarBttn" width="25"  height="25"  rectAlignment="UpperRight" colors="#A9B1D3|#6877B3|#6877B3|#666666"/>
+   <Panel  class="ScoreBoardCorner"       width="125" height="150" rectAlignment="UpperLeft"  color="#222222"/>
+   <Panel  class="ScoreBoardColHdr"       width="49"  height="149" rectAlignment="UpperLeft"  color="#222222"/>
+   <Text   class="ScoreBoardColHdrText"   width="149" height="49"                             color="#C8C8C8" rotation="0 0 -90"/>   <!-- H and W are pre-rotation -->
+   <Panel  class="ScoreBoardRowHdr"       width="124" height="24"  rectAlignment="UpperLeft"  color="#222222"/>
+   <Text   class="ScoreBoardRowHdrText"   width="124" height="24"                             color="#C8C8C8"/>
+   <Panel  class="ScoreBoardCell"         width="49"  height="24"  rectAlignment="UpperLeft"  color="#222222"/>
+   <Text   class="ScoreBoardCellText"     width="49"  height="24"                             color="#C8C8C8"/>
 </Defaults>
 
-<Button
-   id="advance_game_button"
-   width="300" height="40" rectAlignment="UpperLeft" offsetXY="100 -5"
-   allowDragging="true" returnToOriginalPositionWhenReleased="false"
-   colors="#A9B1D3|#6877B3|#6877B3|#666666"
-   onClick="on_click_advance_game"
-   onMouseEnter="on_mouse_enter_advance_game_button"
-   onMouseExit="on_mouse_exit_advance_game_button"
->
-      <Panel width="255" height="30" rectAlignment="MiddleLeft" offsetXY="5 0">
-         <Text id="advance_game_button_text" fontStyle="Bold" fontSize="16" color="Black">Start Game</Text>
-      </Panel>
-      <Panel width="30" height="30" rectAlignment="MiddleRight" offsetXY="-5 0">
-         <Image id="advance_game_button_admin_box"  image="Box Admin"  active="true"></Image>
-         <Image id="advance_game_button_orange_box" image="Box Orange" active="false"></Image>
-         <Image id="advance_game_button_purple_box" image="Box Purple" active="false"></Image>
-         <Image id="advance_game_button_teal_box"   image="Box Teal"   active="false"></Image>
-         <Image id="advance_game_button_yellow_box" image="Box Yellow" active="false"></Image>
-      </Panel>
-</Button>
+<Panel allowDragging="true" returnToOriginalPositionWhenReleased="false" width="340" height="40" rectAlignment="UpperLeft" offsetXY="100 -5">
+   <Button
+      id="advance_game_button"
+      width="300" height="40" rectAlignment="MiddleLeft"
+      colors="#A9B1D3|#6877B3|#6877B3|#666666"
+      onClick="on_click_advance_game"
+   >
+         <Panel width="255" height="30" rectAlignment="MiddleLeft" offsetXY="5 0">
+            <Text id="advance_game_button_text" fontStyle="Bold" fontSize="16" color="Black">Start Game</Text>
+         </Panel>
+         <Panel width="30" height="30" rectAlignment="MiddleRight" offsetXY="-5 0">
+            <Image id="advance_game_button_admin_box"  image="Box Admin"  active="true"></Image>
+            <Image id="advance_game_button_orange_box" image="Box Orange" active="false"></Image>
+            <Image id="advance_game_button_purple_box" image="Box Purple" active="false"></Image>
+            <Image id="advance_game_button_teal_box"   image="Box Teal"   active="false"></Image>
+            <Image id="advance_game_button_yellow_box" image="Box Yellow" active="false"></Image>
+         </Panel>
+   </Button>
+   <Button id="advance_game_popup_open_button" class="AdvanceGamePopupButton" onClick="on_click_show_score_board" active="false"><Image image="Popup Open"/></Button>
+   <Button id="advance_game_popup_close_button" class="AdvanceGamePopupButton" onClick="on_click_hide_score_board" active="false"><Image image="Popup Close"/></Button>
+</Panel>
 
 <Panel class="Window" id="OrangeWindow" visibility="Orange" active="false">
    <Panel class="TopBar" id="OrangeTopBar" color="Orange"/>

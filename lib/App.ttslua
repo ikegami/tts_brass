@@ -12,6 +12,8 @@
 
 -- To make simple to step through turns quickly when debuging, use the following:
 -- /execute start({ min_players = 2, skip_discard_check = true, cool_down = 0 })
+-- This also reduces the eras to one round each:
+-- /execute start({ min_players = 2, skip_discard_check = true, cool_down = 0, short = true })
 
 -- TODO:
 -- - Prevent scoring if the board fails to validate?
@@ -94,7 +96,7 @@ local get_seated_players       = TtsPlayerUtils.get_seated_players
 local decolor                  = TtsPlayerUtils.decolor
 local find_zone                = TtsZoneUtils.find_zone
 local wait_condition           = TtsWait.cond
-local wait_frames              = TtsWait.frames
+local wait_frame               = TtsWait.frame
 
 -- The class.
 local App = {
@@ -122,13 +124,14 @@ end
 -- Object initialization
 
 function App:init(saved_state_json)
-   -- self.initial_funds, self.loan_amount and self.money_value are populated by subclasses.
+   -- self.initial_funds, self.loan_amount, self.has_immediate_vps and self.money_value are populated by subclasses.
 
    self:init_state(saved_state_json)   -- Populates self.state.
    self:init_industry_tile_data()      -- Populates self.industry_tile_data.
    self:init_locations_and_links()     -- Populates self.locations and self.links, self.bonuses_by_external_location, self.loc_names_by_link_name and self.link_names_by_loc_name.
    self:init_objects()                 -- Populates self.objects.
    self:init_resources()               -- Populates self.resources and self.resource_id_by_name.
+   self:init_score_board()             -- Populates self.score_board_rows.
 
    self.control_panel_height = tonumber(UI.getAttribute("PurpleWindow", "height"))
 end
@@ -295,6 +298,33 @@ function App:init_resources()
 end
 
 
+function App:init_score_board()
+   local score_board_rows = {
+      { id = "canal_immediate",  text = "Canal Merchants"  },
+      { id = "canal_links",      text = "Canal Links"      },
+      { id = "canal_industries", text = "Canal Industries" },
+      { id = "canal_era",        text = "Canal Era"        },
+      { id = "rail_immediate",   text = "Rail Merchants"   },
+      { id = "rail_links",       text = "Rail Links"       },
+      { id = "rail_industries",  text = "Rail Industries"  },
+      { id = "rail_money",       text = "Money"            },
+      { id = "rail_era",         text = "Rail Era"         },
+      { id = "total",            text = "Total"            },
+      { id = "position",         text = "Position"         },
+   }
+
+   if not self.has_immediate_vps then
+      score_board_rows = filter(score_board_rows, |i,row|row.id ~= "canal_immediate" and row.id ~= "rail_immediate")
+   end
+
+   if not self.money_value or self.money_value == 0 then
+      score_board_rows = filter(score_board_rows, |i,row|row.id ~= "rail_money")
+   end
+
+   self.score_board_rows = score_board_rows
+end
+
+
 -- ================================================================================
 -- onLoad, the object is constructed, then this is called.
 
@@ -418,7 +448,9 @@ function App:init_ui()
       })
    end
 
-   self:update_ui()
+   self:build_score_board()
+   :next(||self:update_ui())
+   :done()
 end
 
 
@@ -503,7 +535,7 @@ local update_ui_dispatch_table = {
       return
          state:get_game_result(),
          "Game Over!",
-         true,
+         false,
          false
    end,
 }
@@ -596,6 +628,16 @@ end)
 
 App:add_event_listener("on_click_min_max_window", function(self, player, value, id)
    self:min_max_window(player.color)
+end)
+
+
+App:add_event_listener("on_click_show_score_board", function(self, player, value, id)
+   self:show_score_board(player.color)
+end)
+
+
+App:add_event_listener("on_click_hide_score_board", function(self, player, value, id)
+   self:hide_score_board(player.color)
 end)
 
 
@@ -759,6 +801,192 @@ end
 
 
 -- ================================================================================
+-- Score board window
+
+function App:build_score_board()
+   local score_board_rows = self.score_board_rows
+
+   local padding        =   1
+   local major_padding  =   3
+   local title_height   =  25
+   local col_hdr_height = 149
+   local row_hdr_width  = 124
+   local cell_width     =  49
+   local cell_height    =  24
+
+   local xs = { }
+   do
+      local x = padding                       table.insert(xs, x)
+      x = x + row_hdr_width + major_padding   table.insert(xs, x)
+      x = x + cell_width + padding            table.insert(xs, x)
+      x = x + cell_width + padding            table.insert(xs, x)
+      x = x + cell_width + padding            table.insert(xs, x)
+      x = x + cell_width + padding            table.insert(xs, x)
+   end
+
+   local ys = { }
+   do
+      local y = 0 - title_height - padding
+      table.insert(ys, y)
+
+      y = y - col_hdr_height - major_padding
+      table.insert(ys, y)
+
+      for i, row in ipairs(score_board_rows) do
+         if row.id == "canal_era" or row.id == "rail_era" then
+            y = y - cell_height - major_padding
+         else
+            y = y - cell_height - padding
+         end
+
+         table.insert(ys, y)
+      end
+   end
+
+   local xml = UI.getXmlTable()
+
+   local cell_eles = { }
+
+   -- Title bar.
+   table.insert(cell_eles,
+      { tag="Panel", attributes={ class="ScoreBoardTitleBar", offsetXY="0 0" }, children={
+         { tag="Button", attributes={ id="sb_hide_button", class="ScoreBoardTitleBarBttn", onClick="on_click_hide_score_board" }, children={
+            { tag="Image", attributes={ image="Popup Close" } },
+         } },
+      } }
+   )
+
+   -- Row 1: Column headers.
+   table.insert(cell_eles,
+      { tag="Panel", attributes={ class="ScoreBoardCorner", offsetXY=(xs[1]-padding).." "..(ys[1]+padding) } }
+   )
+   for player_idx = 1, 4 do
+      table.insert(cell_eles,
+         { tag="Panel", attributes={ id="sb_p"..player_idx.."_hdr", class="ScoreBoardColHdr", offsetXY=xs[player_idx+1].." "..ys[1] }, children={
+            { tag="Text", attributes={ id="sb_p"..player_idx.."_name", class="ScoreBoardColHdrText" } },
+         } }
+      )
+   end
+
+   -- Remaining rows.
+   for row_idx, row in ipairs(score_board_rows) do
+      table.insert(cell_eles,
+         { tag="Panel", attributes={ class="ScoreBoardRowHdr", offsetXY=xs[1].." "..ys[row_idx+1] }, children={
+            { tag="Text", attributes={ class="ScoreBoardRowHdrText" }, value=row.text },
+         } }
+      )
+
+      for player_idx = 1, 4 do
+         table.insert(cell_eles,
+            { tag="Panel", attributes={ class="ScoreBoardCell", offsetXY=xs[player_idx+1].." "..ys[row_idx+1] }, children={
+               { tag="Text", attributes={ id="sb_p"..player_idx.."_"..row.id, class="ScoreBoardCellText" } },
+            } }
+         )
+      end
+   end
+
+   table.insert(xml,
+      { tag="Panel", attributes={ id="sb_window", class="ScoreBoardWindow", width=xs[#xs], height=-ys[#ys], active="false" }, children=cell_eles }
+   )
+
+   UI.setXmlTable(xml, cell_eles)
+
+   return
+      Promise:resolve()
+      :next(wait_frame)
+end
+
+
+function App:enable_score_board(final)
+   local state            = self.state
+   local score_board_rows = self.score_board_rows
+
+   local score_data                 = state:get_score_data()
+   local player_names_by_color_name = state:get_player_names_by_color_name()
+
+   local all_colors   = table.concat(Player.getColors(), "|")
+   local all_but_grey = table.concat(filter(Player.getColors(), |_|_ ~= "Grey"), "|")
+
+   local color_names = get_keys(score_data)
+   table.sort(color_names, |a,b|score_data[a].order < score_data[b].order)
+
+   for player_idx, color_name in ipairs(color_names) do
+      local player_score_data = score_data[color_name]
+
+      UI.setAttribute("sb_p"..player_idx.."_name", "color", color_name)
+      UI.setValue("sb_p"..player_idx.."_name", player_names_by_color_name[color_name])
+
+      for row in ivalues(score_board_rows) do
+         UI.setValue("sb_p"..player_idx.."_"..row.id, player_score_data[row.id] or "")
+      end
+
+      if player_score_data.position == 1 and final then
+         UI.setAttribute("sb_p"..player_idx.."_hdr", "color", "#222233")
+      end
+   end
+
+   UI.setAttribute("sb_hide_button", "visibility", all_but_grey)
+
+   UI.setAttribute("sb_window", "visibility", all_colors)
+   UI.setAttribute("sb_window", "active", "true")
+
+   UI.setAttribute("advance_game_popup_open_button", "visibility", "")
+   UI.setAttribute("advance_game_popup_open_button", "active", "false")
+   UI.setAttribute("advance_game_popup_close_button", "visibility", all_but_grey)
+   UI.setAttribute("advance_game_popup_close_button", "active", "true")
+
+   return
+      Promise:resolve()
+      :next(wait_frame)
+end
+
+
+function App:disable_score_board()
+   UI.setAttribute("advance_game_popup_open_button", "active", "false")
+   UI.setAttribute("sb_window", "active", "false")
+
+   return
+      Promise:resolve()
+      :next(wait_frame)
+end
+
+
+local function adjust_visibility(id, color_name, add)
+   local visibility = UI.getAttribute(id, "visibility")
+   visibility = split(visibility, "|", true)
+   visibility = filter(visibility, |i,v|v ~= color_name)
+   if add then table.insert(visibility, color_name) end
+   visibility = table.concat(visibility, "|")
+   UI.setAttribute(id, "visibility", visibility)
+   UI.setAttribute(id, "active", visibility ~= "")
+end
+
+
+function App:show_score_board(color_name)
+   -- Just in case.
+   if color_name == "Grey" then
+      return
+   end
+
+   adjust_visibility("advance_game_popup_open_button", color_name, false)
+   adjust_visibility("advance_game_popup_close_button", color_name, true)
+   adjust_visibility("sb_window", color_name, true)
+end
+
+
+function App:hide_score_board(color_name)
+   -- Just in case.
+   if color_name == "Grey" then
+      return
+   end
+
+   adjust_visibility("advance_game_popup_open_button", color_name, true)
+   adjust_visibility("advance_game_popup_close_button", color_name, false)
+   adjust_visibility("sb_window", color_name, false)
+end
+
+
+-- ================================================================================
 -- Announcements
 
 local announcement_stopper
@@ -872,7 +1100,7 @@ function App:start_game()
 
    -- Grey and Black don't count as seated players.
    seated_color_names = filter(seated_color_names, |i,color_name|is_legal_color_name[color_name])
-   local is_seated_color_name = make_set(seated_color_names)
+   local player_names_by_color_name = make_set(seated_color_names, |_|_, |_|Player[_].steam_name or _)
 
    -- Fake some players. Useful for testing.
    local num_players = #seated_color_names
@@ -881,8 +1109,8 @@ function App:start_game()
       local needed_players = min_players - num_players
       if needed_players > 0 then
          for color_name in ivalues(shuffle(get_keys(objects.players))) do
-            if not is_seated_color_name[color_name] then
-               is_seated_color_name[color_name] = true
+            if not player_names_by_color_name[color_name] then
+               player_names_by_color_name[color_name] = color_name
                needed_players = needed_players - 1
                if needed_players == 0 then
                   break
@@ -902,10 +1130,29 @@ function App:start_game()
    end
 
    -- Update global state.
+   local score_data = { }
+   for color_name in keys(player_names_by_color_name) do
+      score_data[color_name] = {
+         position         = nil,
+         order            = nil,
+         canal_immediate  = nil,
+         canal_links      = nil,
+         canal_industries = nil,
+         canal_era        = nil,
+         rail_immediate   = nil,
+         rail_links       = nil,
+         rail_industries  = nil,
+         rail_money       = nil,
+         rail_era         = nil,
+         total            = 0,
+      }
+   end
+
    state:merge({
-      current_phase  = App.Phases.CANAL_ERA_ROUND,
-      active_players = get_keys(is_seated_color_name),
-      current_round  = 1,
+      current_phase              = App.Phases.CANAL_ERA_ROUND,
+      player_names_by_color_name = player_names_by_color_name,
+      current_round              = 1,
+      score_data                 = score_data,
    })
 
    -- Destroy the start button.
@@ -940,6 +1187,7 @@ end
 function App:end_game()
    self.state:set_current_phase(App.Phases.GAME_ENDED)
    self.advance_game_button:disable()
+   self:announce_winner()
 end
 
 
@@ -953,49 +1201,60 @@ end
 function App:end_canal_era()
    return
       self:end_era()
-      :finally(
-         function()
-            self.state:set_current_phase(App.Phases.INTER_ERA)
-         end
-      )
+      :next(|score_info_recs|self:update_score_data("canal", score_info_recs))
+      :next(||self.state:set_current_phase(App.Phases.INTER_ERA))
+      :next(||self:enable_score_board(false))
 end
 
 
 function App:start_rail_era()
-   local deck = self:get_deck()
-   if deck then
-      broadcast_error("Can’t proceed while there are cards in the deck area.")
-      return Promise:resolve()
-   end
-
-   self.state:merge({
-      current_phase = App.Phases.RAIL_ERA_ROUND,
-      current_round = 1,
-   })
-
-   self:remove_link_tiles()
-   self:remove_level1_industries()
-
    return
-      self:setup_rail_era()
-      :finally(||self:start_round())
+      self:disable_score_board()
+      :next(
+         function()
+            local deck = self:get_deck()
+            if deck then
+               broadcast_error("Can’t proceed while there are cards in the deck area.")
+               return Promise:resolve()
+            end
+
+            self.state:merge({
+               current_phase = App.Phases.RAIL_ERA_ROUND,
+               current_round = 1,
+            })
+
+            self:remove_link_tiles()
+            self:remove_level1_industries()
+
+            return
+               self:setup_rail_era()
+               :next(||self:start_round())
+         end
+      )
 end
 
 
 function App:end_rail_era()
    return
       self:end_era()
-      :finally(||self:end_game())
+      :next(|score_info_recs|self:update_score_data("rail", score_info_recs))
+      :next(||self:end_game())
+      :next(||self:enable_score_board(true))
 end
 
 
 function App:end_era()
+   local state   = self.state
+   local objects = self.objects
+
+   local is_rail_era = self.state:get_current_phase() >= App.Phases.RAIL_ERA_ROUND
+
    local link_points_by_color_name     = { ["Orange"]=0, ["Purple"]=0, ["Teal"]=0, ["Yellow"]=0 }
    local industry_points_by_color_name = { ["Orange"]=0, ["Purple"]=0, ["Teal"]=0, ["Yellow"]=0 }
 
    self:adjust_link_tile_values()
 
-   for link_name, link_zone in pairs(self.objects.link_zones) do
+   for link_name, link_zone in pairs(objects.link_zones) do
       for obj in ivalues(link_zone.getObjects()) do
          local name, color_name = decolor(obj.getGMNotes())
          if color_name and ( name == "Canal" or name == "Railway" ) then
@@ -1006,7 +1265,7 @@ function App:end_era()
       end
    end
 
-   for loc_square in values(self.objects.location_squares) do
+   for loc_square in values(objects.location_squares) do
       local found = false
       for obj in ivalues(loc_square.getObjects()) do
          if obj.name == "Card" or obj.name == "Custom_Tile" then
@@ -1021,9 +1280,11 @@ function App:end_era()
       end
    end
 
+   local score_data = state:get_score_data()
+
    local score_info_recs = { }
-   for color_name in ivalues(self.state:get_active_players()) do
-      local player = self.objects.players[color_name]
+   for color_name in ivalues(state:get_active_players()) do
+      local player = objects.players[color_name]
       local score_marker = player.score_marker
       local income_marker = player.income_marker
       local wallet_bowl = player.wallet_bowl
@@ -1033,24 +1294,30 @@ function App:end_era()
       local income_of = self:get_track_position_offset(income_marker)
       local income = self:income_by_track_offset(income_of)
 
-      local money_points    = self.money_value and math.floor( money / self.money_value ) or 0
+      local earlier_points  = score_data[color_name].total
+      local immediate_vps   = self:get_track_position_offset(score_marker) - earlier_points
       local link_points     = link_points_by_color_name[color_name]
       local industry_points = industry_points_by_color_name[color_name]
-      local points          = money_points + link_points + industry_points
-      local total           = self:get_track_position_offset(score_marker) + points
+      local money_points    = ( self.money_value and self.money_value > 0 and is_rail_era ) and math.floor( money / self.money_value ) or 0
+      local points          = immediate_vps + money_points + link_points + industry_points
+      local total           = earlier_points + points
 
       table.insert(score_info_recs, {
+         order           = nil,      -- Populated below. Provides consistent ordering in the event of ties.
+         position        = nil,      -- Populated below.
          color_name      = color_name,
-         money_points    = money_points,
+         earlier_points  = earlier_points,
+         immediate_vps   = immediate_vps,
          link_points     = link_points,
          industry_points = industry_points,
+         money_points    = money_points,
          points          = points,
          total           = total,
-         income          = income,   -- First tie-breaker
-         money           = money,    -- Second tie-breaker
+         income          = income,   -- First tie-breaker.
+         money           = money,    -- Second tie-breaker.
       })
 
-      local num_track_zones = #self.objects.track_zones
+      local num_track_zones = #objects.track_zones
       while total >= num_track_zones do total = total - num_track_zones end
       while total < 0                do total = total + num_track_zones end
    end
@@ -1076,26 +1343,22 @@ function App:end_era()
    table.sort(score_info_recs, |a,b|compare(a,b) > 0)
 
    local prev
-   local ranking = 1
+   local position = 1
    local skip = 0
-   local winners = { }
-   for score_info_rec in ivalues(score_info_recs) do
+   for i, score_info_rec in ipairs(score_info_recs) do
       local color_name = score_info_rec.color_name
 
       if prev ~= nil then
          if compare(score_info_rec, prev) == 0 then
             skip = skip + 1
          else
-            ranking = ranking + skip + 1
+            position = position + skip + 1
             skip = 0
          end
       end
 
-      if ranking == 1 then
-         table.insert(winners, color_name)
-      end
-
-      score_info_rec.ranking = ranking
+      score_info_rec.order    = i
+      score_info_rec.position = position
 
       prev = score_info_rec
    end
@@ -1104,7 +1367,7 @@ function App:end_era()
    local promise = Promise:resolve()
    for score_info_rec in divalues(score_info_recs) do
       local color_name = score_info_rec.color_name
-      local player = self.objects.players[color_name]
+      local player = objects.players[color_name]
       local score_marker = player.score_marker
 
       -- We want the moves to happen seqentially because moving
@@ -1112,19 +1375,18 @@ function App:end_era()
       promise = promise:next(
          function()
             local msg =
-               "#" .. score_info_rec.ranking .. ": " ..
+               "#" .. score_info_rec.position .. ": " ..
                color_name .. " scored " ..
                score_info_rec.points .. " points for a total of " ..
-               score_info_rec.total .. "! ("
+               score_info_rec.total .. "! (" ..
+               score_info_rec.link_points .. " for links, " ..
+               score_info_rec.industry_points .. " for industries"
 
-            if self.money_value then
-               msg = msg .. score_info_rec.money_points .. " for money, "
+            if self.money_value and self.money_value > 0 and is_rail_era then
+               msg = msg .. ", " .. score_info_rec.money_points .. " for money"
             end
 
-            msg = msg ..
-               score_info_rec.link_points .. " for links, " ..
-               score_info_rec.industry_points .. " for industries" ..
-               ")"
+            msg = msg .. ")"
 
             printToAll(msg, color_name)
 
@@ -1137,28 +1399,7 @@ function App:end_era()
       promise = promise:done()
    end
 
-   if self.state:get_current_phase() == App.Phases.RAIL_ERA_SCORE then
-      promise = promise:next(
-         function()
-            local result
-            if #winners == self.state:get_num_players() then
-               result = "Draw!"
-            elseif #winners == 1 then
-               local color_name = winners[1]
-               local player = Player[color_name]
-               local name = player.steam_name or winners[1]
-               result = "Congrats to " .. name .. "!"
-            else
-               result = "Congrats to " .. format_item_list(winners) .. "! (Tie)"
-            end
-
-            broadcast_info(result)
-            self.state:set_game_result(result)
-         end
-      )
-   end
-
-   return promise
+   return promise:next(||score_info_recs)
 end
 
 
@@ -1316,7 +1557,7 @@ function App:setup_deck_canal_era()
                   return deck
                end
             )
-            :next(|deck|wait_frames(1, deck))
+            :next(|deck|wait_frame(deck))
             :next(|deck|wait_condition(||deck.resting, deck, 3, "Timeout setting up deck."))
       else
          card_deck_bag.destruct()
@@ -1402,7 +1643,7 @@ function App:setup_deck_rail_era()
             return deck
          end
       )
-      :next(|deck|wait_frames(1, deck))
+      :next(|deck|wait_frame(deck))
       :next(|deck|wait_condition(||deck.resting, deck, 3, "Timeout setting up deck."))
 end
 
@@ -2146,9 +2387,9 @@ function App:validate_links()
    local game_board = objects.game_board
    local game_table = objects.game_table
 
-   local canal_era = self.state:get_current_phase() < App.Phases.RAIL_ERA_ROUND
-   local link_era_prop = canal_era and "canal" or "rail"
-   local required_link_obj_type = canal_era and "Canal" or "Railway"
+   local is_canal_era = self.state:get_current_phase() < App.Phases.RAIL_ERA_ROUND
+   local link_era_prop = is_canal_era and "canal" or "rail"
+   local required_link_obj_type = is_canal_era and "Canal" or "Railway"
 
    for link_name, link in pairs(self.links) do
       local link_zone = objects.link_zones[link_name]
@@ -2410,6 +2651,63 @@ function App:check_if_latest()
             return false
          end
       )
+end
+
+
+-- ================================================================================
+-- Scoring
+
+function App:update_score_data(era, score_info_recs)
+   local state = self.state
+
+   local score_data = state:get_score_data()
+
+   for score_info_rec in ivalues(score_info_recs) do
+      local color_name = score_info_rec.color_name
+      local player_score_data = score_data[color_name]
+
+      player_score_data[ era .. "_immediate"  ] = score_info_rec.immediate_vps
+      player_score_data[ era .. "_links"      ] = score_info_rec.link_points
+      player_score_data[ era .. "_industries" ] = score_info_rec.industry_points
+
+      if era == "rail" then
+         player_score_data.rail_money = score_info_rec.money_points
+      end
+
+      player_score_data[ era .. "_era"        ] = score_info_rec.points
+
+      player_score_data.total    = score_info_rec.total
+      player_score_data.order    = score_info_rec.order
+      player_score_data.position = score_info_rec.position
+   end
+end
+
+
+function App:announce_winner()
+   local state   = self.state
+   local objects = self.objects
+   local players = objects.players
+
+   local score_data = state:get_score_data()
+   local winners = filter(get_keys(score_data), |i,color_name|score_data[color_name].position == 1)
+
+   local result
+   if #winners == state:get_num_players() then
+      result = "Draw!"
+   elseif #winners == 1 then
+      local color_name = winners[1]
+      local name = state:get_player_names_by_color_name()[color_name]
+      result = "Congrats to " .. name .. "!"
+   else
+      result = "Congrats to " .. format_item_list(winners) .. "! (Tie)"
+   end
+
+   broadcast_info(result)
+   self.state:set_game_result(result)
+
+   for color_name in ivalues(winners) do
+      pulse_obj(players[color_name].mat, Color[color_name], { num_pulses = -1 })
+   end
 end
 
 
