@@ -2,6 +2,7 @@
 - Now displays a score board at the end of each era.
 - Added checks that canals and railways are only used during the appropriate era.
 - Made it so objects only snap to positions appropriate for the object.
+- Pulses of highlights now smoother.
 - Fixed small problems with minimizing and unminimizing the control panel.
 
 [2021-05-03 Kinithin]
