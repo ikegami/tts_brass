@@ -943,6 +943,7 @@ end
 
 function App:disable_score_board()
    UI.setAttribute("advance_game_popup_open_button", "active", "false")
+   UI.setAttribute("advance_game_popup_close_button", "active", "false")
    UI.setAttribute("sb_window", "active", "false")
 
    return
