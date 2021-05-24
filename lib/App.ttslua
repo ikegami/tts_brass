@@ -98,6 +98,10 @@ local find_zone                = TtsZoneUtils.find_zone
 local wait_condition           = TtsWait.cond
 local wait_frame               = TtsWait.frame
 
+-- Forward declerations.
+local to_csv
+local to_tsv
+
 -- The class.
 local App = {
    event_listeners = { }
@@ -1188,6 +1192,7 @@ end
 function App:end_game()
    self.state:set_current_phase(App.Phases.GAME_ENDED)
    self.advance_game_button:disable()
+   self:log_results()
    self:announce_winner()
 end
 
@@ -2684,6 +2689,72 @@ function App:update_score_data(era, score_info_recs)
 end
 
 
+function App:log_results()
+   local state            = self.state
+   local score_board_rows = self.score_board_rows
+
+   local score_data                 = state:get_score_data()
+   local player_names_by_color_name = state:get_player_names_by_color_name()
+
+   local color_names = get_keys(score_data)
+   table.sort(color_names, |a,b|score_data[a].order < score_data[b].order)
+
+   do
+      local data = { }
+
+      do
+         local header = { "player_color", "player_name" }
+
+         for row_idx, row in ipairs(score_board_rows) do
+            table.insert(header, row.id)
+         end
+
+         table.insert(data, header)
+      end
+
+      for player_idx, color_name in ipairs(color_names) do
+         local player_score_data = score_data[color_name]
+
+         local player = { color_name, player_names_by_color_name[color_name] }
+
+         for row_idx, row in ipairs(score_board_rows) do
+            table.insert(player, player_score_data[row.id])
+         end
+
+         table.insert(data, player)
+      end
+
+      Notes.addNotebookTab({ title = "Results (CSV)",  body = to_csv(data) })
+      Notes.addNotebookTab({ title = "Results (TSV)",  body = to_tsv(data) })
+   end
+
+   do
+      local players = { }
+
+      for player_idx, color_name in ipairs(color_names) do
+         local player_score_data = score_data[color_name]
+
+         local player = {
+            player_color = color_name,
+            player_name  = player_names_by_color_name[color_name],
+         }
+
+         for row_idx, row in ipairs(score_board_rows) do
+            player[row.id] = player_score_data[row.id]
+         end
+
+         table.insert(players, player)
+      end
+
+      local data = {
+         players = players,
+      }
+
+      Notes.addNotebookTab({ title = "Results (JSON)", body = JSON.encode(data) })
+   end
+end
+
+
 function App:announce_winner()
    local state   = self.state
    local objects = self.objects
@@ -2742,6 +2813,53 @@ function App:all_settled_error_logger(value)
    end
 
    return value
+end
+
+
+-- ================================================================================
+-- CSV
+
+function to_csv(data)
+   local encoded_rows = { }
+   for row in ivalues(data) do
+      local encoded_cells = { }
+      for cell in ivalues(row) do
+         local cell_type = type(cell)
+         if cell_type == "string" then
+            table.insert(encoded_cells, '"' .. string.gsub(cell, '"', '""') .. '"')
+         elseif cell_type == "number" then
+            table.insert(encoded_cells, tostring(cell))  -- Not so good for non-integers.
+         else
+            table.insert(encoded_cells, "")
+         end
+      end
+
+      table.insert(encoded_rows, table.concat(encoded_cells, ",") .. "\n")
+   end
+
+   return table.concat(encoded_rows, "")
+end
+
+
+function to_tsv(data)
+   local encoded_rows = { }
+   for row in ivalues(data) do
+      local encoded_cells = { }
+      for cell in ivalues(row) do
+         local cell_type = type(cell)
+         if cell_type == "string" then
+            table.insert(encoded_cells, cell)  -- Not so good for strings with tabs, line feeds, etc.
+         elseif cell_type == "number" then
+            table.insert(encoded_cells, tostring(cell))  -- Not so good for non-integers.
+         else
+            table.insert(encoded_cells, "")
+         end
+      end
+
+      table.insert(encoded_rows, table.concat(encoded_cells, "\t") .. "\n")
+   end
+
+   return table.concat(encoded_rows, "")
 end
 
 
