@@ -1,4 +1,4 @@
-[~~~~-~~-~~ Kinithin]
+[2021-05-24 Kinithin]
 - Now displays a score board at the end of each era.
 - Now stores the game's result as CSV, TSV and JSON in the Notebook at end of game.
 - Added checks that canals and railways are only used during the appropriate era.
