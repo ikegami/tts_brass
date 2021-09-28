@@ -2179,7 +2179,7 @@ function App:spend_money_announced(color_name, amount)
    self:remove_money_from_player(color_name, amount, true)
    :next(
       function(result)
-         printToAll(color_name .. " payed £" .. amount .. ".", color_name)
+         printToAll(color_name .. " paid £" .. amount .. ".", color_name)
       end,
       function(reason)
          if reason == App.Errors.EINSUFFICIENT_FUNDS then
