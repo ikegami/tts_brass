@@ -1,3 +1,7 @@
+[2022-01-22 Kinithin]
+- Moved off of pastebin for hosting.
+- Fix misspelling of "paid". (Credit: Venemo)
+
 [2021-05-24 Kinithin]
 - Now displays a score board at the end of each era.
 - Now stores the game's result as CSV, TSV and JSON in the Notebook at end of game.
