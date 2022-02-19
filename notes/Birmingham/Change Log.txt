@@ -1,3 +1,6 @@
+[2022-02-19 Kinithin]
+- Now uses my Steam Cloud for hosting exclusively (except for the rules).
+
 [2022-01-22 Kinithin]
 - Moved off of pastebin for hosting.
 - Fix misspelling of "paid". (Credit: Venemo)

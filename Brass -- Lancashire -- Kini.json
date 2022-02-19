@@ -35,7 +35,7 @@
     },
     "12": {
       "title": "Change Log",
-      "body": "[2022-01-22 Kinithin]\n- Moved off of pastebin for hosting.\n- Fix misspelling of \"paid\". (Credit: Venemo)\n\n[2021-05-24 Kinithin]\n- Now displays a score board at the end of each era.\n- Now stores the game's result as CSV, TSV and JSON in the Notebook at end of game.\n- Added checks that canals and railways are only used during the appropriate era.\n- Made it so objects only snap to positions appropriate for the object.\n- Pulses of highlights now smoother.\n- Fixed small problems with minimizing and unminimizing the control panel.\n\n[2021-05-03 Kinithin]\n- New hosting for wooden cube resources.\n\n[2021-04-09 Kinithin]\n- Fixed a bug preventing the rail era from being entered with four players.\n- Silenced the harmless \"Undeclared write to spawned_object\" warning.\n\n[2021-01-12 Kinithin]\n- Restored the ability to save (and rewind) games. This was broken by the previous release.\n- Worked around a bug in TTS that could corrupt this module’s state.\n- Updated to the latest rule book.\n- Sir Henry Bessemer no longer leans so far back.\n\n[2021-01-03 Kinithin]\n- The game was disabling the loan button one round too soon.\n- The game now checks for updates and advises the players where to get the newest version.\n- The game-advancing button now shows as disabled when the game is busy and when in cool-down mode.\n- Sound is cut if the game-advancing button is pressed while sound is still playing.\n\n[2020-12-21 Kinithin]\n- Fixed a (basically harmless) error that would occur every 10s a player had a color other than those used by the mod.\n\n[2020-12-19 Kinithin]\n- Initial version. Based on the Brass: Lancashire assets by Draxous and the Brass: Birmingham code by Kinithin. Thanks for Eldin’s help with the model for the distant cotton market.\n",
+      "body": "[2022-02-19 Kinithin]\n- Now uses my Steam Cloud for hosting exclusively (except for the rules).\n\n[2022-01-22 Kinithin]\n- Moved off of pastebin for hosting.\n- Fix misspelling of \"paid\". (Credit: Venemo)\n\n[2021-05-24 Kinithin]\n- Now displays a score board at the end of each era.\n- Now stores the game's result as CSV, TSV and JSON in the Notebook at end of game.\n- Added checks that canals and railways are only used during the appropriate era.\n- Made it so objects only snap to positions appropriate for the object.\n- Pulses of highlights now smoother.\n- Fixed small problems with minimizing and unminimizing the control panel.\n\n[2021-05-03 Kinithin]\n- New hosting for wooden cube resources.\n\n[2021-04-09 Kinithin]\n- Fixed a bug preventing the rail era from being entered with four players.\n- Silenced the harmless \"Undeclared write to spawned_object\" warning.\n\n[2021-01-12 Kinithin]\n- Restored the ability to save (and rewind) games. This was broken by the previous release.\n- Worked around a bug in TTS that could corrupt this module’s state.\n- Updated to the latest rule book.\n- Sir Henry Bessemer no longer leans so far back.\n\n[2021-01-03 Kinithin]\n- The game was disabling the loan button one round too soon.\n- The game now checks for updates and advises the players where to get the newest version.\n- The game-advancing button now shows as disabled when the game is busy and when in cool-down mode.\n- Sound is cut if the game-advancing button is pressed while sound is still playing.\n\n[2020-12-21 Kinithin]\n- Fixed a (basically harmless) error that would occur every 10s a player had a color other than those used by the mod.\n\n[2020-12-19 Kinithin]\n- Initial version. Based on the Brass: Lancashire assets by Draxous and the Brass: Birmingham code by Kinithin. Thanks for Eldin’s help with the model for the distant cotton market.\n",
       "color": "Grey",
       "visibleColor": {
         "r": 0.5,
@@ -12114,7 +12114,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomAssetbundle": {
-        "AssetbundleURL": "http://chry.me/tts/modtray/modtray_2x.unity3d",
+        "AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671227154/2B2C4B6BA8D8AFCA5A141044A1A16CDD86AEEF60/",
         "AssetbundleSecondaryURL": "",
         "MaterialIndex": 0,
         "TypeIndex": 4,
@@ -12187,7 +12187,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomAssetbundle": {
-        "AssetbundleURL": "http://chry.me/tts/modtray/modtray_2x.unity3d",
+        "AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671227154/2B2C4B6BA8D8AFCA5A141044A1A16CDD86AEEF60/",
         "AssetbundleSecondaryURL": "",
         "MaterialIndex": 0,
         "TypeIndex": 4,
@@ -12260,7 +12260,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomAssetbundle": {
-        "AssetbundleURL": "http://chry.me/tts/modtray/modtray_2x.unity3d",
+        "AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671227154/2B2C4B6BA8D8AFCA5A141044A1A16CDD86AEEF60/",
         "AssetbundleSecondaryURL": "",
         "MaterialIndex": 0,
         "TypeIndex": 4,
@@ -12333,7 +12333,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomAssetbundle": {
-        "AssetbundleURL": "http://chry.me/tts/modtray/modtray_2x.unity3d",
+        "AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671227154/2B2C4B6BA8D8AFCA5A141044A1A16CDD86AEEF60/",
         "AssetbundleSecondaryURL": "",
         "MaterialIndex": 0,
         "TypeIndex": 4,

@@ -24,7 +24,7 @@
   "TabStates": {
     "0": {
       "title": "Information",
-      "body": "Welcome! Once everyone is seated, press either of the “Start Game” buttons to start.\r\n\r\nThe game gives chances to review and make correction at critical times:\r\n- Income only happens when “Start the Next Round” and “Start the Rail Era” are clicked.\r\n- Scoring only happens when “Score the Canal Era” is clicked.\r\n- Clearing the board of links and industries only happens when “Start the Rail Era” is clicked.\r\n\r\nInstructions:\r\n- Only use the “+#” buttons when receiving money. Don’t use them when spending.\r\n- Only use the “-#” buttons when spending money.\r\n- When taking the Scout action, simply place the three cards in a discard pile.\r\n- Wild cards should be placed in the discard pile as any other.\r\n\r\nThe script is largely stateless. This means you can change/correct just about everything in the game, including:\r\n- Available money\r\n- Money spent\r\n- Links and industries\r\n- Cards\r\n- Income and score markers\r\n- Coal and iron markets\r\n- Merchants and their beer\r\n\r\nYou can even change the turn order token. If this causes a player to be placed before the current player, perform the turns as it there was no scripting until it reaches the indicated player’s turn.\r\n\r\nThe script supports saving and reverting time.\r\n\r\nThe script is very tolerant of people dropping. The host and promoted players can click the game-advancing button even when it’s not their turn.\r\n\r\nThe value of links are updated with every click of the button.\r\n\r\n“/execute start(n)” in the chat will start the game with missing players. (Use a number of players instead of “n”.)\r\n",
+      "body": "Welcome! Once everyone is seated, press either of the “Start Game” buttons to start.\n\nThe game gives chances to review and make correction at critical times:\n- Income only happens when “Start the Next Round” and “Start the Rail Era” are clicked.\n- Scoring only happens when “Score the Canal Era” is clicked.\n- Clearing the board of links and industries only happens when “Start the Rail Era” is clicked.\n\nInstructions:\n- Only use the “+#” buttons when receiving money. Don’t use them when spending.\n- Only use the “-#” buttons when spending money.\n- When taking the Scout action, simply place the three cards in a discard pile.\n- Wild cards should be placed in the discard pile as any other.\n\nThe script is largely stateless. This means you can change/correct just about everything in the game, including:\n- Available money\n- Money spent\n- Lks and industries\n- Cards\n- Income and score markers\n- Coal and iron markets\n- Merchants and their beer\n\nYou can even change the turn order token. If this causes a player to be placed before the current player, perform the turns as it there was no scripting until it reaches the indicated player’s turn.\n\nThe script supports saving and reverting time.\n\nThe script is very tolerant of people dropping. The host and promoted players can click the game-advancing button even when it’s not their turn.\n\nThe value of links are updated with every click of the button.\n\n“/execute start(n)” in the chat will start the game with missing players. (Use a number of players instead of “n”.)\n",
       "color": "Grey",
       "visibleColor": {
         "r": 0.5,
@@ -35,7 +35,7 @@
     },
     "12": {
       "title": "Change Log",
-      "body": "[2022-01-22 Kinithin]\n- Moved off of pastebin for hosting.\n- Fix misspelling of \"paid\". (Credit: Venemo)\n\n[2021-05-24 Kinithin]\r\n- Now displays a score board at the end of each era.\r\n- Now stores the game's result as CSV, TSV and JSON in the Notebook at end of game.\r\n- Added checks that canals and railways are only used during the appropriate era.\r\n- Made it so objects only snap to positions appropriate for the object.\r\n- Pulses of highlights now smoother.\r\n- Fixed small problems with minimizing and unminimizing the control panel.\r\n\r\n[2021-05-03 Kinithin]\r\n- New hosting for wooden cube resources.\r\n\r\n[2021-04-09 Kinithin]\r\n- Silenced the harmless \"Undeclared write to spawned_object\" warning.\r\n\r\n[2021-01-12 Kinithin]\r\n- Restored the ability to save (and rewind) games. This was broken by the previous release.\r\n- Worked around a bug in TTS that could corrupt this module’s state.\r\n- Updated to the latest rule book.\r\n- Added a copy of the reference card.\r\n- Sir Henry Bessemer no longer leans so far back.\r\n\r\n[2021-01-03 Kinithin]\r\n- The game now checks for updates and advises the players where to get the newest version.\r\n- The game-advancing button now shows as disabled when the game is busy and when in cool-down mode.\r\n- Sound is cut if the game-advancing button is pressed while sound is still playing.\r\n\r\n[2020-12-21 Kinithin]\r\n- Fixed a (basically harmless) error that would occur every 10s a player had a color other than those used by the mod.\r\n\r\n[2020-12-19 Kinithin]\r\n- Switched from using cards to using tiles for the industry tiles. This makes it more obvious that there are multiple of some tiles.\r\n- Players no longer have an infinite supply of links.\r\n- Solved a problem where players couldn’t see the cards in their hands.\r\n- Player tokens are now two-sided like in the physical game. A side is chosen randomly at game start.\r\n- The scores are now announced in (reverse) order of placement. This uses the tie-breakers if required.\r\n- A sound effect is now played any time the game becomes ready to be advanced, not just when it becomes someone’s turn.\r\n- A visual element was added to a player’s turn notifications.\r\n- Addressed the issue that could cause the score markers to topple over if multiple people had the same score at the end of scoring.\r\n- The script no longer relies on the name and description fields of objects. This allows the game to be internationalized. GM Notes are used for internal data.\r\n- Major internal changes to allow the code to be shared by both Brass: Lancashire and Brass: Birmingham.\r\n\r\n[2020-09-15 Kinithin]\r\n- Better handling of stacks and other misplaced items on the game board.\r\n- Better handling of spectating (Grey) players and of players of a color not used by the game.\r\n- Resolved a harmless “Can’t resolve guid” warning that occurred when loading a game saved during the Rail Era.\r\n- When level 1 tiles are deleted at the start of the rail era, so are any resources on those tiles.\r\n- Major internal changes (use of modules and promises) to ease future development.\r\n\r\n[2020-08-25 Kinithin]\r\n- Major overhaul. Entire script rewritten from scratch.\r\n- Better reporting of actions taken by the script and users.\r\n- Automatic scoring (with a chance to review)!\r\n- The value of every link is automatically updated between every turn.\r\n- Refills a player’s hand at the end of their turn (instead of at the end of the round).\r\n- Checks that a player played sufficient cards before moving to the next player.\r\n- Canals and level 1 industries are automatically cleared at the start of the rail era.\r\n- Links now support 12 points, which the Birmingham-Coventry link is capable of granting.\r\n- Links now default to a state with a value of 0.\r\n- Links now snap (regardless of their state).\r\n- New button makes increasing income easier.\r\n- Moved the link bags to help purple avoid grabbing tiles when they meant to grab links.\r\n- Fixed the maximum number of rounds displayed.\r\n- Allows a discard pile to have three cards (to support the Scout action).\r\n- Removed the need to tell the game the number of players that will be playing.\r\n- Markers and tokens for unused player colors are now removed automatically.\r\n- The orange player’s tray has been moved so that it’s not obscured by the chat window when viewing the whole board.\r\n- The orangish-red color is now played by an orange player since red is used by error messages. (Same reason white is played by a teal player.)\r\n- The coal and iron bags can now be moved or copied without messing anything up.\r\n\r\n[2020-08-11 Kinithin]\r\n- Fixed a bug in the turn order determination algorithm that could occur in the event of spending ties.\r\n- Links now snap.\r\n\r\n[2020-08-07 imlost]\r\n- Moved end-of-turn/round button to somewhere safer.\r\n- Removed invisible end-of-turn/round button.\r\n\r\n[2020-07-26 HsFearless]\r\n- Scripting simplifications to reduce problems.\r\n\r\n[Earlier history unknown.]\r\n",
+      "body": "[2022-02-19 Kinithin]\n- Now uses my Steam Cloud for hosting exclusively (except for the rules).\n\n[2022-01-22 Kinithin]\n- Moved off of pastebin for hosting.\n- Fix misspelling of \"paid\". (Credit: Venemo)\n\n[2021-05-24 Kinithin]\n- Now displays a score board at the end of each era.\n- Now stores the game's result as CSV, TSV and JSON in the Notebook at end of game.\n- Added checks that canals and railways are only used during the appropriate era.\n- Made it so objects only snap to positions appropriate for the object.\n- Pulses of highlights now smoother.\n- Fixed small problems with minimizing and unminimizing the control panel.\n\n[2021-05-03 Kinithin]\n- New hosting for wooden cube resources.\n\n[2021-04-09 Kinithin]\n- Silenced the harmless \"Undeclared write to spawned_object\" warning.\n\n[2021-01-12 Kinithin]\n- Restored the ability to save (and rewind) games. This was broken by the previous release.\n- Worked around a bug in TTS that could corrupt this module’s state.\n- Updated to the latest rule book.\n- Added a copy of the reference card.\n- Sir Hey Bessemer no longer leans so far back.\n\n[2021-01-03 Kinithin]\n- The game now checks for updates and advises the players where to get the newest version.\n- The game-advancing button now shows as disabled when the game is busy and when in cool-down mode.\n- Sound is cut if the game-advancing button is pressed while sound is still playing.\n\n[2020-12-21 Kinithin]\n- Fixed a (basically harmless) error that would occur every 10s a player had a color other than those used by the mod.\n\n[2020-12-19 Kinithin]\n- Switched from using cards to using tiles for the industry tiles. This makes it more obvious that there are multiple of some tiles.\n- Players no longer have an infinite supply of links.\n- Solved a problem where players couldn’t see the cards in their hands.\n- Player tokens are now two-sided like in the physical game. A side is chosen randomly at game start.\n- The scores are now announced in (reverse) order of placement. This uses the tie-breakers if required.\n- A sound effect is now played any time the game becomes ready to be advanced, not just when it becomes someone’s turn.\n- A visual element was added to a player’s turn notifications.\n- Addressed the issue that could cause the score markers to topple over if multiple people had the same score at the end of scoring.\n- The script no longer relies  the name and description fields of objects. This allows the game to be internationalized. GM Notes are used for internal data.\n- Major internal changes to allow the code to be shared by both Brass: Lancashire and Brass: Birmingham.\n\n[2020-09-15 Kinithin]\n- Better handling of stacks another misplaced items on the game board.\n- Better handling of spectating (Grey) players and of players of a color not used by the game.\n- Resolved a harmless “Can’t resolve guid” warning that occurred when loading a game saved during the Rail Era.\n- When level 1 tiles are deleted at the start of the rail era, so are any resources on those tiles.\n- Major internal changes (use of modules and promises) to ease future development.\n\n[2020-08-25 Kinithin]\n- Major overhaul. Entire script rewritten from scratch.\n- Better reporting of actions taken by the script and users.\n- Automatic scoring (with a chance to review)!\n- The value of every link is automatically updated between every turn.\n- Refills a player’s hand at the end of their turn (instead of at the end of the round).\n- Checks that a player played sufficient cards before moving to the next player.\n- Canals and level 1 industries are automatically cleared at the start of the rail era.\n- Links now support 12 points, which the Birmingham-Coventry link is capable of granting.\n- Links now default to a state with a value of 0.\n- Links now snap (regardle of their state).\n- New button makes increasing income easier.\n- Moved the link bags to help purple avoid grabbing tiles when they meant to grab links.\n- Fixed the maximum number of rounds displayed.\n- Allows a discard pile to have three cards (to support the Scout acon).\n- Removed the need to tell the game the number of players that will be playing.\n- Markers and tokens for unused player colors are now removed automatically.\n- The orange player’s tray has been moved so that it’s not obscured by the chat window when viewing the whole board.\n- The orangish-red color is now played by an orange player since red is used by error messages. (Same reason white is played by a teal player.)\n- The coal and iron bags can now be moved or copied without messing anything up.\n\n[2020-08-11 Kinithin]\n- Fixed a bug in the turn order determination algorithm that could occur in the event of spending ties.\n- Links now snap.\n\n[2020-08-07 imlost]\n- Moved end-of-turn/round button to somewhere safer.\n- Removed invisible end-of-turn/round button.\n\n[2020-07-26 HsFearless]\n- Scripting simplifications to reduce problems.\n\n[Earlier history unknown.]\n",
       "color": "Grey",
       "visibleColor": {
         "r": 0.5,
@@ -7636,7 +7636,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://i.imgur.com/PmtzJnN.png",
+        "ImageURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671237554/CD8A2A5BC0897B575B206B9FDA5927E1A9E2ED00/",
         "ImageSecondaryURL": "",
         "ImageScalar": 1.0,
         "WidthScale": 0.0,
@@ -7688,7 +7688,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://i.imgur.com/L42Qry2.png",
+        "ImageURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671234578/873640094480EAFF8B74D531B27AD8E459AD7285/",
         "ImageSecondaryURL": "",
         "ImageScalar": 1.0,
         "WidthScale": 0.0,
@@ -7740,7 +7740,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://i.imgur.com/YyYD3PL.png",
+        "ImageURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671242135/4EBC91AD3E0D30549AFD68300A41E703E7B789C1/",
         "ImageSecondaryURL": "",
         "ImageScalar": 1.0,
         "WidthScale": 0.0,
@@ -7792,7 +7792,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://i.imgur.com/VAk6RTK.png",
+        "ImageURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671240558/558083794F47990F6B6EC63FBCC2964CE6F72B33/",
         "ImageSecondaryURL": "",
         "ImageScalar": 1.0,
         "WidthScale": 0.0,
@@ -16717,7 +16717,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomAssetbundle": {
-        "AssetbundleURL": "http://chry.me/tts/modtray/modtray_2x.unity3d",
+        "AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671227154/2B2C4B6BA8D8AFCA5A141044A1A16CDD86AEEF60/",
         "AssetbundleSecondaryURL": "",
         "MaterialIndex": 0,
         "TypeIndex": 4,
@@ -16790,7 +16790,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomAssetbundle": {
-        "AssetbundleURL": "http://chry.me/tts/modtray/modtray_2x.unity3d",
+        "AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671227154/2B2C4B6BA8D8AFCA5A141044A1A16CDD86AEEF60/",
         "AssetbundleSecondaryURL": "",
         "MaterialIndex": 0,
         "TypeIndex": 4,
@@ -16863,7 +16863,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomAssetbundle": {
-        "AssetbundleURL": "http://chry.me/tts/modtray/modtray_2x.unity3d",
+        "AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671227154/2B2C4B6BA8D8AFCA5A141044A1A16CDD86AEEF60/",
         "AssetbundleSecondaryURL": "",
         "MaterialIndex": 0,
         "TypeIndex": 4,
@@ -16936,7 +16936,7 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomAssetbundle": {
-        "AssetbundleURL": "http://chry.me/tts/modtray/modtray_2x.unity3d",
+        "AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/1842538926671227154/2B2C4B6BA8D8AFCA5A141044A1A16CDD86AEEF60/",
         "AssetbundleSecondaryURL": "",
         "MaterialIndex": 0,
         "TypeIndex": 4,
